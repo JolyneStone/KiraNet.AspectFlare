@@ -12,6 +12,38 @@ namespace KiraNet.AspectFlare.DynamicProxy
         private static readonly Type CalledIntercept = typeof(CalledInterceptAttribute);
         private static readonly Type ExceptionIntercept = typeof(ExceptionInterceptAttribute);
 
+        public static bool TryGetDefaultValue(this ParameterInfo parameter, out object defaultValue)
+        {
+            bool hasDefaultValue;
+            var tryToGetDefaultValue = true;
+            defaultValue = null;
+
+            try
+            {
+                hasDefaultValue = parameter.HasDefaultValue;
+            }
+            catch (FormatException) when (parameter.ParameterType == typeof(DateTime)) // 如果该参数类型为DateTime，则会抛出此异常 因为DateTime的任何值都不是编译时常量
+                                                                                       // 详见 https://github.com/dotnet/corefx/issues/12338
+            {
+                hasDefaultValue = true;
+                tryToGetDefaultValue = false;
+            }
+
+            if (hasDefaultValue)
+            {
+                if (tryToGetDefaultValue)
+                {
+                    defaultValue = parameter.DefaultValue;
+                }
+
+                if (defaultValue == null && parameter.ParameterType.GetTypeInfo().IsValueType)
+                {
+                    defaultValue = Activator.CreateInstance(parameter.ParameterType);
+                }
+            }
+
+            return hasDefaultValue;
+        }
 
         public static bool HasInterceptAttribute(this Type type)
         {

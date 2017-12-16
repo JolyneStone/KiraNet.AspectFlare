@@ -15,7 +15,7 @@ namespace KiraNet.AspectFlare.Validator
         {
             if (serviceType == null ||
                 serviceType.IsGenericTypeDefinition ||
-                serviceType.IsDefined(typeof(NonInterceptAttribute), true))
+                serviceType.IsDefined(NonIntercept, true))
             {
                 return false;
             }
@@ -25,7 +25,7 @@ namespace KiraNet.AspectFlare.Validator
                 !proxyType.IsValueType ||
                 !proxyType.IsVisible ||
                 !proxyType.IsSealed ||
-                serviceType.IsDefined(typeof(NonInterceptAttribute), true))
+                serviceType.IsDefined(NonIntercept, true))
             {
                 return false;
             }

@@ -9,6 +9,7 @@ namespace KiraNet.AspectFlare
         public object[] Parameters { get; set; }
         public object ReturnValue { get; set; }
         public Exception Exception { get; set; }
+        public bool HasResult { get; set; }
         public object Result { get; set; }
     }
 }
