@@ -4,7 +4,7 @@ using System.Reflection.Emit;
 
 namespace KiraNet.AspectFlare.DynamicProxy
 {
-    internal static class ILGeneratorExetionsions
+    internal static class ILGeneratorExtensions
     {
         //internal static void EmitConstructor(this ILGenerator ctorGenerator, ConstructorInfo constructor, Type[] parameters)
         //{

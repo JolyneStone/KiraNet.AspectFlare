@@ -2,30 +2,38 @@
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
+using KiraNet.AspectFlare.DynamicProxy.Exensions;
+using KiraNet.AspectFlare.Utilities;
 
 namespace KiraNet.AspectFlare.DynamicProxy
 {
     internal class ImplementMethodOperator : CallMethodOperator
     {
-        public override void Generate(GenerateTypeContext context)
+        public override void Generate(GeneratorTypeContext context)
         {
             var proxyType = context.ProxyType;
             var typeBuilder = context.TypeBuilder;
-            var wrappers = context.WrappersField;
-            var proxyMethods = proxyType.GetMethods(
+
+            bool hasTypeIntercept = proxyType.HasInterceptAttribute();
+            foreach (var proxyMethod in proxyType.GetMethods(
                                         BindingFlags.Instance |
                                         BindingFlags.Public |
                                         BindingFlags.NonPublic
-                                    )
-                                    .Where(
+                                    ).Where(
                                      x =>
-                                x.IsVirtual &&
-                                (x.IsPublic || x.IsFamily || !(x.IsAssembly || x.IsFamilyAndAssembly || x.IsFamilyOrAssembly)) &&
-                                x.HasInterceptAttribute()
-                            );
-
-            foreach (var proxyMethod in proxyMethods)
+                                       x.IsVirtual &&
+                                      (x.IsPublic || x.IsFamily)
+                            )) 
             {
+                if (proxyMethod.IsDefined(typeof(NonInterceptAttribute)))
+                {
+                    continue;
+                }
+                if (!proxyMethod.HasDefineInterceptAttribute() && !hasTypeIntercept)
+                {
+                    continue;
+                }
+
                 var baseParameterInfos = proxyMethod.GetParameters();
                 var parameters = baseParameterInfos
                                     .Select(x => x.ParameterType)
@@ -34,62 +42,21 @@ namespace KiraNet.AspectFlare.DynamicProxy
                 // 定义方法
                 MethodBuilder methodBuilder = typeBuilder.DefineMethod(
                         proxyMethod.Name,
-                        proxyMethod.Attributes,
-                        CallingConventions.HasThis
+                        proxyMethod.Attributes ^ MethodAttributes.NewSlot,
+                        CallingConventions.HasThis | CallingConventions.Standard,
+                        proxyMethod.ReturnType,
+                        baseParameterInfos.Select(x=>x.ParameterType).ToArray()
                     );
 
-                SetMethodParameters(methodBuilder, proxyMethod, baseParameterInfos);
+                methodBuilder.SetReturnType(proxyMethod.ReturnType);
+                methodBuilder.SetMethodParameters(proxyMethod, baseParameterInfos);
 
                 ILGenerator methodGenerator = methodBuilder.GetILGenerator();
+                GenerateMethod(methodBuilder, proxyMethod, methodGenerator, context, baseParameterInfos);
 
-                if(proxyMethod.IsDefined(typeof(AsyncStateMachineAttribute))
-                        && proxyMethod.ReturnType != typeof(void))
-                {
-                    CallMethodAsync(proxyMethod, methodGenerator, context, baseParameterInfos);
-                }
-                else
-                {
-                    CallMethodSync(proxyMethod, methodGenerator, context, baseParameterInfos);
-                }
-
+                // TODO: interfacing
                 // overrided method
-                //typeBuilder.DefineMethodOverride(methodBuilder, proxyMethod);
-            }
-        }
-
-
-        private void SetMethodParameters(MethodBuilder methodBuilder, MethodInfo method, ParameterInfo[] parameters)
-        {
-            if (method.IsGenericMethodDefinition)
-            {
-                var genericArguments = method.GetGenericArguments();
-                GenericTypeParameterBuilder[] typeArguments = methodBuilder.DefineGenericParameters(
-                                                                    genericArguments.Select(x => x.Name).ToArray()
-                                                            );
-                for (var i = 0; i < genericArguments.Length; i++)
-                {
-                    var typeArgument = typeArguments[i];
-                    var genericArgument = genericArguments[i];
-                    typeArgument.SetGenericParameterAttributes(genericArguments[i].GenericParameterAttributes);
-                    typeArgument.SetBaseTypeConstraint(genericArgument.BaseType);
-                    typeArgument.SetInterfaceConstraints(genericArgument.GetInterfaces());
-                }
-            }
-
-            for (var i = 0; i < parameters.Length; i++)
-            {
-                var baseParameter = parameters[i];
-
-                var parameterBuilder = methodBuilder.DefineParameter(
-                            i + 1,
-                            baseParameter.Attributes,
-                            baseParameter.Name
-                        );
-
-                if (baseParameter.HasDefaultValue && baseParameter.TryGetDefaultValue(out object defaultValue))
-                {
-                    parameterBuilder.SetConstant(defaultValue);
-                }
+                typeBuilder.DefineMethodOverride(methodBuilder, proxyMethod);
             }
         }
     }

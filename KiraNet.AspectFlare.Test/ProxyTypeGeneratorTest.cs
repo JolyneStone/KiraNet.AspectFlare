@@ -65,21 +65,44 @@ namespace KiraNet.AspectFlare.Test
             var result2 = foo.GenericHasReturn(new NotImplementedException(), new List<int>());
             Assert.Equal(1, result2);
         }
+
+
+        [Fact]
+        public async void GenerateProxyClassTest()
+        {
+            IProxyTypeGenerator proxyTypeGenerator = new ProxyTypeGenerator();
+            var type = proxyTypeGenerator.GenerateProxyByClass(typeof(ClassBase));
+            Assert.NotNull(type);
+            var classInstance = (ClassBase)Activator.CreateInstance(type, 1);
+            var str = await classInstance.AsyncT8(default(InterceptResult));
+            Assert.True(str.LastIndexOf("zzq") != -1);
+            var interceptResult = await classInstance.AsyncT9(0L, null);
+            Assert.True(interceptResult.HasResult == true);
+        }
     }
 
     public class CallingAttribute : CallingInterceptAttribute
     {
-
+        public override void Calling(CallingInterceptContext callingInterceptorContext)
+        {
+            base.Calling(callingInterceptorContext);
+        }
     }
 
     public class CalledAttribute : CalledInterceptAttribute
     {
-
+        public override void Called(CalledInterceptContext calledInterceptorContext)
+        {
+            base.Called(calledInterceptorContext);
+        }
     }
 
     public class ExceptionAttribute : ExceptionInterceptAttribute
     {
-
+        public override void Exception(ExceptionInterceptContext exceptionInterceptorContext)
+        {
+            base.Exception(exceptionInterceptorContext);
+        }
     }
 
 

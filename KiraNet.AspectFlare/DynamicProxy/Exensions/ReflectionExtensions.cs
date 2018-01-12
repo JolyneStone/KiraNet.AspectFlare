@@ -63,6 +63,13 @@ namespace KiraNet.AspectFlare.DynamicProxy
                         );
         }
 
+        public static bool HasDefineInterceptAttribute(this MethodBase method)
+        {
+            return method.IsDefined(CallingIntercept, true) ||
+                    method.IsDefined(CalledIntercept, true) ||
+                     method.IsDefined(ExceptionIntercept, true);
+        }
+
         public static bool CanAsClassInterceptMethod(this MethodBase method, bool hasClassIntercept)
         {
             if (!method.IsVirtual)

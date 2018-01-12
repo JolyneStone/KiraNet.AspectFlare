@@ -2,6 +2,6 @@
 {
     public interface IGenerateOperator
     {
-        void Generate(GenerateTypeContext context);
+        void Generate(GeneratorTypeContext context);
     }
 }

@@ -17,7 +17,7 @@ namespace KiraNet.AspectFlare.DynamicProxy
             }
 
             _wrappers = new Dictionary<int, InterceptorWrapper>();
-            var wrapper = new InterceptorWrapper<object>
+            var wrapper = new InterceptorWrapper
             {
                 CallingInterceptors = type.GetCustomAttributes<CallingInterceptAttribute>(true).OfType<ICallingInterceptor>(),
                 CalledInterceptors = type.GetCustomAttributes<CalledInterceptAttribute>(true).OfType<ICalledInterceptor>(),
@@ -26,17 +26,25 @@ namespace KiraNet.AspectFlare.DynamicProxy
 
             _wrappers.Add(0, wrapper);
 
+            bool hasTypeIntercept = type.HasInterceptAttribute();
             foreach (var ctor in type.GetConstructors(
                                 BindingFlags.Instance |
                                 BindingFlags.Public |
                                 BindingFlags.NonPublic)
                             .Where(
                              x =>
-                                x.IsVirtual &&
-                                (x.IsPublic || x.IsFamily|| !(x.IsAssembly || x.IsFamilyAndAssembly || x.IsFamilyOrAssembly)) &&
-                                x.HasInterceptAttribute()
+                                (x.IsPublic || x.IsFamily|| !(x.IsAssembly || x.IsFamilyAndAssembly || x.IsFamilyOrAssembly))
                             ))
             {
+                if (ctor.IsDefined(typeof(NonInterceptAttribute)))
+                {
+                    continue;
+                }
+                if (!ctor.HasDefineInterceptAttribute() && !hasTypeIntercept)
+                {
+                    continue;
+                }
+
                 _wrappers.Add(ctor.MetadataToken, new InterceptorWrapper
                 {
                     CallingInterceptors = ctor.GetCustomAttributes<CallingInterceptAttribute>(true).OfType<ICallingInterceptor>(),
@@ -45,16 +53,25 @@ namespace KiraNet.AspectFlare.DynamicProxy
                 });
             }
 
-            foreach (var method in type.GetMethods(BindingFlags.Instance |
+            foreach (var method in type.GetMethods(
+                                BindingFlags.Instance |
                                 BindingFlags.Public |
                                 BindingFlags.NonPublic)
                             .Where(
                              x =>
                                 x.IsVirtual &&
-                                (x.IsPublic || x.IsFamily) &&
-                                x.HasInterceptAttribute()
+                                (x.IsPublic || x.IsFamily)
                             ))
             {
+                if (method.IsDefined(typeof(NonInterceptAttribute)))
+                {
+                    continue;
+                }
+                if (!method.HasDefineInterceptAttribute() && !hasTypeIntercept)
+                {
+                    continue;
+                }
+
                 _wrappers.Add(method.MetadataToken, new InterceptorWrapper
                 {
                     CallingInterceptors = method.GetCustomAttributes<CallingInterceptAttribute>(true).OfType<ICallingInterceptor>(),

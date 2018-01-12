@@ -5,9 +5,10 @@ namespace KiraNet.AspectFlare.DynamicProxy
 {
     public interface IMethodGenerator
     {
-        void GeneratorMethod(
-            GenerateTypeContext context,
+        void GenerateMethod(
+            GeneratorTypeContext context,
             ILGenerator methodGenerator,
+            MethodBuilder methodBuilder,
             MethodBase method,
             ParameterInfo[] parameters);
     }

@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.0
+VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KiraNet.AspectFlare", "KiraNet.AspectFlare\KiraNet.AspectFlare.csproj", "{4DDA5F49-FE2B-416F-89C4-B6328F60BB84}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KiraNet.AspectFlare.DependencyInjection", "KiraNet.AspectFlare.DependencyInjection\KiraNet.AspectFlare.DependencyInjection.csproj", "{6F0452BF-89A0-4D76-BDD1-71C52DA2C911}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KiraNet.AspectFlare.Test", "KiraNet.AspectFlare.Test\KiraNet.AspectFlare.Test.csproj", "{3555CA02-B7E9-4169-9DFA-2FF1E947C5DC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleTest", "ConsoleTest\ConsoleTest.csproj", "{FF6052A3-5691-4EFC-B82B-0DA2E2FFA297}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{3555CA02-B7E9-4169-9DFA-2FF1E947C5DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3555CA02-B7E9-4169-9DFA-2FF1E947C5DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3555CA02-B7E9-4169-9DFA-2FF1E947C5DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF6052A3-5691-4EFC-B82B-0DA2E2FFA297}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF6052A3-5691-4EFC-B82B-0DA2E2FFA297}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF6052A3-5691-4EFC-B82B-0DA2E2FFA297}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF6052A3-5691-4EFC-B82B-0DA2E2FFA297}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

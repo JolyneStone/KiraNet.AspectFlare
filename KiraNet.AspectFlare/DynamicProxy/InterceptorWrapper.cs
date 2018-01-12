@@ -4,55 +4,17 @@ using System.Linq;
 
 namespace KiraNet.AspectFlare.DynamicProxy
 {
-    //public class InterceptorWrapper<TResult>: InterceptorWrapper
-    //{
-    //    private TResult _result;
-    //    public TResult Result
-    //    {
-    //        get
-    //        {
-    //            TResult result = _result;
-    //            _result = default(TResult);
-    //            return result;
-    //        }
-    //        set
-    //        {
-    //            _result = value;
-    //        }
-    //    }
-    //}
-
     public class InterceptorWrapper
     {
         public IEnumerable<ICallingInterceptor> CallingInterceptors { get; set; }
         public IEnumerable<ICalledInterceptor> CalledInterceptors { get; set; }
         public IExceptionInterceptor ExceptionInterceptor { get; set; }
 
-        private object _result;
-        public object Result
-        {
-            get
-            {
-                object result = _result;
-                _result = null;
-                return result;
-            }
-            set
-            {
-                _result = value;
-            }
-        }
-
-        public InterceptResult CallingIntercepts(object owner, string interceptedName, object[] parameters)
+        public InterceptResult CallingIntercepts(object owner, object[] parameters)
         {
             if (owner == null)
             {
                 throw new System.ArgumentNullException(nameof(owner));
-            }
-
-            if (interceptedName == null)
-            {
-                throw new System.ArgumentNullException(nameof(interceptedName));
             }
 
             if (CallingInterceptors == null || !CallingInterceptors.Any())
@@ -66,7 +28,6 @@ namespace KiraNet.AspectFlare.DynamicProxy
             var context = new CallingInterceptContext
             {
                 Owner = owner,
-                InterceptedName = interceptedName,
                 Parameters = parameters,
                 HasResult = false
             };
@@ -90,16 +51,11 @@ namespace KiraNet.AspectFlare.DynamicProxy
             };
         }
 
-        public InterceptResult CalledIntercepts(object owner, string interceptedName, object returnValue)
+        public InterceptResult CalledIntercepts(object owner, object[] parameters, object returnValue)
         {
             if (owner == null)
             {
                 throw new System.ArgumentNullException(nameof(owner));
-            }
-
-            if (interceptedName == null)
-            {
-                throw new System.ArgumentNullException(nameof(interceptedName));
             }
 
             if (CalledInterceptors == null || !CalledInterceptors.Any())
@@ -113,7 +69,7 @@ namespace KiraNet.AspectFlare.DynamicProxy
             var context = new CalledInterceptContext
             {
                 Owner = owner,
-                InterceptedName = interceptedName,
+                Parameters = parameters,
                 ReturnValue = returnValue,
                 HasResult = false
             };
@@ -137,16 +93,11 @@ namespace KiraNet.AspectFlare.DynamicProxy
             };
         }
 
-        public InterceptResult ExceptionIntercept(object owner, string interceptedName, object[] parameters, object returnValue, Exception exception)
+        public InterceptResult ExceptionIntercept(object owner, object[] parameters, object returnValue, Exception exception)
         {
             if (owner == null)
             {
                 throw new ArgumentNullException(nameof(owner));
-            }
-
-            if (interceptedName == null)
-            {
-                throw new ArgumentNullException(nameof(interceptedName));
             }
 
             if (exception == null)
@@ -165,7 +116,6 @@ namespace KiraNet.AspectFlare.DynamicProxy
             var context = new ExceptionInterceptContext
             {
                 Owner = owner,
-                InterceptedName = interceptedName,
                 Parameters = parameters,
                 ReturnValue = returnValue,
                 Exception = exception,

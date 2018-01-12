@@ -30,12 +30,13 @@ namespace KiraNet.AspectFlare.Utilities
         private static FieldInfo _result;
         private static ConstructorInfo _compilerGeneratedAttributeConstructor;
         private static ConstructorInfo _debuggerHiddenAttributeConstructor;
+        private static ConstructorInfo _asyncStateMachineAttributeConstructor;
         private static MethodInfo _setStateMachine;
+        private static MethodInfo _moveNext;
         private static MethodInfo _setStateMachineByTaskBuilder;
         private static MethodInfo _setStateMachineByTaskBuilderOfT;
         private static MethodInfo _setStateMachineByValueTaskBuilderOfT;
-        private static ConstructorInfo _asyncCallerConstructor;
-
+        private static ConstructorInfo _objectConstructor;
 
         private static bool CheckGetCustomAttributeMenthod(MethodInfo method, string methodName)
         {
@@ -431,6 +432,24 @@ namespace KiraNet.AspectFlare.Utilities
             }
         }
 
+        public static ConstructorInfo AsyncStateMachineAttributeConstructor
+        {
+            get
+            {
+                if(_asyncStateMachineAttributeConstructor == null)
+                {
+                    _asyncStateMachineAttributeConstructor = typeof(AsyncStateMachineAttribute).GetConstructor(
+                            BindingFlags.Public | BindingFlags.Instance,
+                            null,
+                            new Type[] {typeof(Type)},
+                            null
+                        );
+                }
+
+                return _asyncStateMachineAttributeConstructor;
+            }
+        }
+
         public static MethodInfo SetStateMachine
         {
             get
@@ -438,12 +457,26 @@ namespace KiraNet.AspectFlare.Utilities
                 if (_setStateMachine == null)
                 {
                     _setStateMachine = typeof(IAsyncStateMachine).GetMethod(
-                                "SetStateMachine",
-                                new Type[] { typeof(IAsyncStateMachine) }
-                            );
+                            "SetStateMachine"
+                        );
                 }
 
                 return _setStateMachine;
+            }
+        }
+
+        public static MethodInfo MoveNext
+        {
+            get
+            {
+                if(_moveNext == null)
+                {
+                    _moveNext = typeof(IAsyncStateMachine).GetMethod(
+                            "MoveNext"
+                        );
+                }
+
+                return _moveNext;
             }
         }
 
@@ -504,22 +537,21 @@ namespace KiraNet.AspectFlare.Utilities
             }
         }
 
-        public static ConstructorInfo AsyncCallerConstructor
+        public static ConstructorInfo ObjectConstructor
         {
             get
             {
-                if (_asyncCallerConstructor == null)
+                if(_objectConstructor == null)
                 {
-                    _asyncCallerConstructor = typeof(Caller).GetConstructor(
-                            BindingFlags.Public | BindingFlags.Instance,
-                            null,
-                            CallingConventions.HasThis,
-                            new Type[] { typeof(InterceptorWrapper) },
-                            null
-                        );
+                    _objectConstructor = typeof(object).GetConstructor(
+                        BindingFlags.Public | BindingFlags.Instance, 
+                        null,
+                        Type.EmptyTypes,
+                        null
+                    );
                 }
 
-                return _asyncCallerConstructor;
+                return _objectConstructor;
             }
         }
     }

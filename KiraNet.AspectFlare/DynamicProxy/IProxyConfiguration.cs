@@ -8,7 +8,7 @@ namespace KiraNet.AspectFlare.DynamicProxy
     {
         AppDomain ProxyDomain { get; }
         ModuleBuilder ProxyModuleBuilder { get; }
-        AssemblyName ProxyAssblyName { get; }
+        AssemblyName ProxyAssemblyName { get; }
         AssemblyBuilder ProxyAssemblyBuilder { get; }
 
     }

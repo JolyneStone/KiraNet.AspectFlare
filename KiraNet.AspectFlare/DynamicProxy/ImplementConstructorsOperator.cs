@@ -2,25 +2,32 @@
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using KiraNet.AspectFlare.DynamicProxy.Exensions;
+using KiraNet.AspectFlare.Utilities;
 
 namespace KiraNet.AspectFlare.DynamicProxy
 {
     internal class ImplementConstructorsOperator : CallMethodOperator
     {
-        public override void Generate(GenerateTypeContext context)
+        public override void Generate(GeneratorTypeContext context)
         {
+            GenerateInit(context);
             var proxyType = context.ProxyType;
             var typeBuilder = context.TypeBuilder;
-            var proxyCtors = proxyType.GetConstructors(
+            bool hasTypeIntercept = proxyType.HasInterceptAttribute();
+            foreach (var ctor in  proxyType.GetConstructors(
                                         BindingFlags.CreateInstance |
                                         BindingFlags.Instance |
                                         BindingFlags.Public |
                                         BindingFlags.NonPublic
-                                    );
-
-            foreach (var proxyCtor in proxyCtors)
+                                    ).Where(
+                                     x =>
+                                        x.IsPublic ||
+                                        x.IsFamily || 
+                                        !(x.IsAssembly || x.IsFamilyAndAssembly || x.IsFamilyOrAssembly)
+                                    ))
             {
-                var baseParameterInfos = proxyCtor.GetParameters();
+                var baseParameterInfos = ctor.GetParameters();
                 var parameters = baseParameterInfos
                                     .Select(x => x.ParameterType)
                                     .ToArray();
@@ -32,56 +39,82 @@ namespace KiraNet.AspectFlare.DynamicProxy
                         parameters
                     );
 
+                bool isIntercept = true;
+                if (ctor.IsDefined(typeof(NonInterceptAttribute)))
+                {
+                    isIntercept = false;
+                }
+                if (!ctor.HasDefineInterceptAttribute() && !hasTypeIntercept)
+                {
+                    isIntercept = false;
+                }
 
-                SetConstructorParameters(constructorBuilder, baseParameterInfos);
-
+                constructorBuilder.SetMethodParameters(baseParameterInfos);
                 ILGenerator ctorGenerator = constructorBuilder.GetILGenerator();
                 GeneratorConstructor(
-                        proxyType, 
-                        proxyCtor, 
+                        proxyType,
+                        constructorBuilder,
+                        ctor, 
                         ctorGenerator,
                         context,
-                        baseParameterInfos
+                        baseParameterInfos,
+                        isIntercept
                     );
             }
         }
 
         private void GeneratorConstructor(
             Type proxyType,
+            ConstructorBuilder methodBuilder, 
             ConstructorInfo constructor,
             ILGenerator ctorGenerator,
-            GenerateTypeContext context,
-            ParameterInfo[] parameters)
+            GeneratorTypeContext context,
+            ParameterInfo[] parameters,
+            bool isIntercept)
         {
             // 初始化
             // Ldarg_0 一般是方法开始的第一个指令
             ctorGenerator.Emit(OpCodes.Ldarg_0);
             ctorGenerator.Emit(OpCodes.Call, context.InitMethod);
 
-
-            // 调用基类构造函数 base(x, y)
-            // 注：这里的调用位置在C#代码中无法表示，因为在C#中调用基类构造函数必须在方法参数列表之后
-            // CallBaseMethod(ctorGenerator, constructor, parameters);
-            CallMethodSync(constructor, ctorGenerator, context, parameters);
+            if (isIntercept)
+            {
+                // 调用基类构造函数 base(x)
+                // 注：这里的调用位置在C#代码中无法表示，因为在C#中调用基类构造函数必须在方法参数列表之后
+                GenerateMethod(methodBuilder, constructor, ctorGenerator, context, parameters);
+            }
+            else
+            {
+                ctorGenerator.Emit(OpCodes.Ldarg_0);
+                for (var i = 0; i < parameters.Length; i++)
+                {
+                    ctorGenerator.Emit(OpCodes.Ldarg_S, i + 1);
+                }
+                ctorGenerator.Emit(OpCodes.Call, constructor);
+                ctorGenerator.Emit(OpCodes.Ret);
+            }
         }
 
-        private void SetConstructorParameters(ConstructorBuilder constructorBuilder, ParameterInfo[] parameters)
+        public void GenerateInit(GeneratorTypeContext context)
         {
-            for (var i = 0; i < parameters.Length; i++)
-            {
-                var baseParameter = parameters[i];
+            var initBuilder = context.TypeBuilder.DefineMethod(
+                          "<Proxy>__init",
+                          MethodAttributes.Private |
+                          MethodAttributes.HideBySig,
+                          CallingConventions.HasThis
+                      );
 
-                var parameterBuilder = constructorBuilder.DefineParameter(
-                            i + 1,
-                            baseParameter.Attributes,
-                            baseParameter.Name
-                        );
+            var initGenerator = initBuilder.GetILGenerator();
+            var typeLocal = initGenerator.DeclareLocal(typeof(Type));
 
-                if (baseParameter.HasDefaultValue && baseParameter.TryGetDefaultValue(out object defaultValue))
-                {
-                    parameterBuilder.SetConstant(defaultValue);
-                }
-            }
+            initGenerator.Emit(OpCodes.Ldarg_0);
+            initGenerator.Emit(OpCodes.Ldtoken, context.ProxyType);
+            initGenerator.Emit(OpCodes.Call, ReflectionInfoProvider.GetTypeFromHandle);
+            initGenerator.Emit(OpCodes.Newobj, ReflectionInfoProvider.InterceptorWrapperCollectionByType);
+            initGenerator.Emit(OpCodes.Stfld, context.Wrappers);
+            initGenerator.Emit(OpCodes.Ret);
+
+            context.InitMethod = initBuilder;
         }
     }
 }

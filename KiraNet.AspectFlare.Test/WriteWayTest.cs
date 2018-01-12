@@ -70,6 +70,8 @@ namespace KiraNet.AspectFlare.Test
             await Task.Delay(2000);
         }
 
+        [Calling]
+        [Calling]
         public virtual async Task AsyncT2()
         {
             await Task.Delay(1000);
@@ -109,13 +111,21 @@ namespace KiraNet.AspectFlare.Test
         public virtual async Task<string> AsyncT8(InterceptResult result)
         {
             await Task.Delay(1000);
-            return result.ToString();
+            return result.ToString() + "zzq";
         }
 
-        public virtual async ValueTask<long> AsyncT9(long l)
+        public virtual async ValueTask<InterceptResult> AsyncT9(long l, Foo foo)
         {
             await Task.Delay(1000);
-            return ++l;
+            l = foo == null ? 1 : 2;
+            var x = default(InterceptResult);
+            x.HasResult = true;
+            return x;
+        }
+
+        public virtual async Task AsyncT10(int x, int y, Exception ex, InterceptResult intercept)
+        {
+            await Task.Delay(1000);
         }
 
         public virtual async Task<string> TaskAsyncT(int x, int y)
@@ -147,14 +157,14 @@ namespace KiraNet.AspectFlare.Test
             InterceptResult result;
             try
             {
-                result = wrapper.CallingIntercepts(this, ".ctor", parameters);
+                result = wrapper.CallingIntercepts(this, parameters);
                 // 调用基类方法
 
-                result = wrapper.CalledIntercepts(this, ".ctor", this);
+                result = wrapper.CalledIntercepts(this, parameters, this);
             }
             catch (Exception ex)
             {
-                result = wrapper.ExceptionIntercept(this, ".ctor", parameters, this, ex);
+                result = wrapper.ExceptionIntercept(this, parameters, this, ex);
             }
         }
 
@@ -191,16 +201,16 @@ namespace KiraNet.AspectFlare.Test
             InterceptResult result;
             try
             {
-                result = wrapper.CallingIntercepts(this, ".ctor", parameters);
+                result = wrapper.CallingIntercepts(this, parameters);
 
-                result = wrapper.CallingIntercepts(this, ".ctor", null);
+                result = wrapper.CallingIntercepts(this, null);
                 // 调用基类方法
 
-                result = wrapper.CalledIntercepts(this, ".ctor", this);
+                result = wrapper.CalledIntercepts(this, parameters, this);
             }
             catch (Exception ex)
             {
-                result = wrapper.ExceptionIntercept(this, ".ctor", parameters, this, ex);
+                result = wrapper.ExceptionIntercept(this, parameters, this, ex);
             }
         }
 
@@ -219,16 +229,15 @@ namespace KiraNet.AspectFlare.Test
             Object[] parameters = new object[] { x };
             try
             {
-                result = wrapper.CallingIntercepts(this, ".ctor", parameters);
 
-                result = wrapper.CallingIntercepts(this, ".ctor", null);
+                result = wrapper.CallingIntercepts(this, parameters);
                 // 调用基类方法
 
-                result = wrapper.CalledIntercepts(this, ".ctor", null);
+                result = wrapper.CalledIntercepts(this, parameters, null);
             }
             catch (Exception ex)
             {
-                result = wrapper.ExceptionIntercept(this, ".ctor", parameters, null, ex);
+                result = wrapper.ExceptionIntercept(this, parameters, null, ex);
             }
         }
 
@@ -263,7 +272,7 @@ namespace KiraNet.AspectFlare.Test
             try
             {
 
-                if (wrapper.CallingIntercepts(this, ".ctor", parameters).HasResult)
+                if (wrapper.CallingIntercepts(this, parameters).HasResult)
                 {
                     return;
                 }
@@ -271,11 +280,11 @@ namespace KiraNet.AspectFlare.Test
                 // 调用基类方法
                 base.NoReturnAndParameter();
 
-                wrapper.CalledIntercepts(this, ".ctor", null);
+                wrapper.CalledIntercepts(this, parameters, null);
             }
             catch (Exception ex)
             {
-                if (wrapper.ExceptionIntercept(this, ".ctor", parameters, null, ex).HasResult)
+                if (wrapper.ExceptionIntercept(this, parameters, null, ex).HasResult)
                 {
                     return;
                 }
@@ -298,7 +307,7 @@ namespace KiraNet.AspectFlare.Test
             Exception returnVaule = null;
             try
             {
-                result = wrapper.CallingIntercepts(this, ".ctor", parameters);
+                result = wrapper.CallingIntercepts(this, parameters);
                 if (result.HasResult)
                 {
                     return (Exception)result.Result;
@@ -306,7 +315,7 @@ namespace KiraNet.AspectFlare.Test
                 // 调用基类方法
                 returnVaule = base.HasReturnAndNoParameter();
 
-                result = wrapper.CalledIntercepts(this, ".ctor", returnVaule);
+                result = wrapper.CalledIntercepts(this, parameters, returnVaule);
                 if (result.HasResult)
                 {
                     return (Exception)result.Result;
@@ -316,7 +325,7 @@ namespace KiraNet.AspectFlare.Test
             }
             catch (Exception ex)
             {
-                result = wrapper.ExceptionIntercept(this, ".ctor", parameters, returnVaule, ex);
+                result = wrapper.ExceptionIntercept(this, parameters, returnVaule, ex);
                 if (result.HasResult)
                 {
                     return (Exception)result.Result;
@@ -346,7 +355,7 @@ namespace KiraNet.AspectFlare.Test
 
             try
             {
-                result = wrapper.CallingIntercepts(this, ".ctor", parameters);
+                result = wrapper.CallingIntercepts(this, parameters);
                 if (result.HasResult)
                 {
                     return (int)result.Result;
@@ -354,7 +363,7 @@ namespace KiraNet.AspectFlare.Test
                 // 调用基类方法
                 returnVaule = base.HasReturn(ref x, out y, ref z, exception);
 
-                result = wrapper.CalledIntercepts(this, ".ctor", returnVaule);
+                result = wrapper.CalledIntercepts(this, parameters, returnVaule);
                 if (result.HasResult)
                 {
                     return (int)result.Result;
@@ -364,7 +373,7 @@ namespace KiraNet.AspectFlare.Test
             }
             catch (Exception ex)
             {
-                result = wrapper.ExceptionIntercept(this, ".ctor", parameters, returnVaule, ex);
+                result = wrapper.ExceptionIntercept(this, parameters, returnVaule, ex);
                 if (result.HasResult)
                 {
                     return (int)result.Result;
@@ -384,16 +393,15 @@ namespace KiraNet.AspectFlare.Test
                 return;
             }
 
-            Object[] parameters = new object[4];
-            parameters[0] = x;
-            parameters[1] = y;
-            parameters[2] = z;
-            parameters[3] = t;
+            Object[] parameters = new object[4]
+            {
+                x,y,z,t
+            };
             InterceptResult result;
 
             try
             {
-                result = wrapper.CallingIntercepts(this, ".ctor", parameters);
+                result = wrapper.CallingIntercepts(this, parameters);
                 if (result.HasResult)
                 {
                     return;
@@ -402,11 +410,11 @@ namespace KiraNet.AspectFlare.Test
                 // 调用基类方法
                 base.AsyncT1(x, y, z, t);
 
-                wrapper.CalledIntercepts(this, ".ctor", null);
+                wrapper.CalledIntercepts(this, parameters, null);
             }
             catch (Exception ex)
             {
-                result = wrapper.ExceptionIntercept(this, ".ctor", parameters, null, ex);
+                result = wrapper.ExceptionIntercept(this, parameters, null, ex);
                 if (result.HasResult)
                 {
                     return;
@@ -428,33 +436,29 @@ namespace KiraNet.AspectFlare.Test
 
             Object[] parameters = null;
             InterceptResult result;
-
             try
             {
-                result = wrapper.CallingIntercepts(this, ".ctor", parameters);
+                result = wrapper.CallingIntercepts(this, parameters);
                 if (result.HasResult)
                 {
-                    await (Task)result.Result;
                     return;
                 }
 
                 // 调用基类方法
                 await base.AsyncT2();
 
-                result = wrapper.CalledIntercepts(this, ".ctor", null);
+                result = wrapper.CalledIntercepts(this, parameters, null);
                 if (result.HasResult)
                 {
-                    await (Task)result.Result;
                     return;
                 }
             }
             catch (Exception ex)
             {
-                result = wrapper.ExceptionIntercept(this, ".ctor", parameters, null, ex);
+                result = wrapper.ExceptionIntercept(this, parameters, null, ex);
                 if (result.HasResult)
                 {
-                    await (Task)result.Result;
-
+                    return;
                 }
 
                 throw ex;
@@ -488,37 +492,38 @@ namespace KiraNet.AspectFlare.Test
                 return await base.AsyncT6(x, y);
             }
 
-            Object[] parameters = new object[2];
-            parameters[0] = x;
-            parameters[1] = y;
+            Object[] parameters = new object[2]
+            {
+                x,y
+            };
             InterceptResult result;
             Exception returnValue = null;
             try
             {
-                result = wrapper.CallingIntercepts(this, ".ctor", parameters);
+                result = wrapper.CallingIntercepts(this, parameters);
                 if (result.HasResult)
                 {
-                    return await (ValueTask<Exception>)result.Result;
+                    return (Exception)result.Result;
                 }
 
                 // 调用基类方法
                 returnValue = await base.AsyncT6(x, y);
 
-                result = wrapper.CalledIntercepts(this, ".ctor", returnValue);
+                result = wrapper.CalledIntercepts(this, parameters, returnValue);
 
                 if (result.HasResult)
                 {
-                    return await (ValueTask<Exception>)result.Result;
+                    return (Exception)result.Result;
                 }
 
                 return returnValue;
             }
             catch (Exception ex)
             {
-                result = wrapper.ExceptionIntercept(this, ".ctor", parameters, returnValue, ex);
+                result = wrapper.ExceptionIntercept(this, parameters, returnValue, ex);
                 if (result.HasResult)
                 {
-                    return await (ValueTask<Exception>)result.Result;
+                    return (Exception)result.Result;
                 }
 
                 throw ex;
@@ -534,40 +539,38 @@ namespace KiraNet.AspectFlare.Test
                 return await base.AsyncT7(x, y, ex1, ex2, objs);
             }
 
-            Object[] parameters = new object[4];
-            parameters[0] = x;
-            parameters[1] = y;
-            parameters[2] = ex1;
-            parameters[3] = ex2;
-            parameters[4] = objs;
+            Object[] parameters = new object[5]
+            {
+                x,y,ex1,ex2,objs
+            };
             InterceptResult result;
             Exception returnValue = null;
             try
             {
-                result = wrapper.CallingIntercepts(this, ".ctor", parameters);
+                result = wrapper.CallingIntercepts(this, parameters);
                 if (result.HasResult)
                 {
-                    return await (Task<Exception>)result.Result;
+                    return (Exception)result.Result;
                 }
 
                 // 调用基类方法
                 returnValue = await base.AsyncT7(x, y, ex1, ex2, objs);
 
-                result = wrapper.CalledIntercepts(this, ".ctor", returnValue);
+                result = wrapper.CalledIntercepts(this, parameters, returnValue);
 
                 if (result.HasResult)
                 {
-                    return await (Task<Exception>)result.Result;
+                    return (Exception)result.Result;
                 }
 
                 return returnValue;
             }
             catch (Exception ex)
             {
-                result = wrapper.ExceptionIntercept(this, ".ctor", parameters, returnValue, ex);
+                result = wrapper.ExceptionIntercept(this, parameters, returnValue, ex);
                 if (result.HasResult)
                 {
-                    return await (Task<Exception>)result.Result;
+                    return (Exception)result.Result;
                 }
 
                 throw ex;
@@ -583,91 +586,132 @@ namespace KiraNet.AspectFlare.Test
                 return await base.AsyncT8(resultArg);
             }
 
-            Object[] parameters = new object[1];
-            parameters[0] = resultArg;
+            Object[] parameters = new object[1] { resultArg };
             InterceptResult result;
             string returnValue = null;
             try
             {
-                result = wrapper.CallingIntercepts(this, ".ctor", parameters);
+                result = wrapper.CallingIntercepts(this, parameters);
                 if (result.HasResult)
                 {
-                    return await (Task<string>)result.Result;
+                    return (string)result.Result;
                 }
 
                 // 调用基类方法
                 returnValue = await base.AsyncT8(resultArg);
 
-                result = wrapper.CalledIntercepts(this, ".ctor", returnValue);
+                result = wrapper.CalledIntercepts(this, parameters, returnValue);
 
                 if (result.HasResult)
                 {
-                    return await (Task<string>)result.Result;
+                    return (string)result.Result;
                 }
 
                 return returnValue;
             }
             catch (Exception ex)
             {
-                result = wrapper.ExceptionIntercept(this, ".ctor", parameters, returnValue, ex);
+                result = wrapper.ExceptionIntercept(this, parameters, returnValue, ex);
                 if (result.HasResult)
                 {
-                    return await (Task<string>)result.Result;
+                    return (string)result.Result;
                 }
 
                 throw ex;
             }
         }
 
-        public override async ValueTask<long> AsyncT9(long l)
+        public override async ValueTask<InterceptResult> AsyncT9(long l, Foo foo)
         {
             var wrapper = _wrappers.GetWrapper(10000);
             if (wrapper == null)
             {
                 // 调用基类方法
-                return await base.AsyncT9(l);
+                return await base.AsyncT9(l, foo);
             }
 
-            Object[] parameters = new object[1];
+            Object[] parameters = new object[2]
+            {
+                l,foo
+            };
             InterceptResult result;
-            long returnValue = default(long);
+            InterceptResult returnValue = default(InterceptResult);
             try
             {
-                result = wrapper.CallingIntercepts(this, ".ctor", parameters);
+                result = wrapper.CallingIntercepts(this, parameters);
                 if (result.HasResult)
                 {
-                    return await (ValueTask<long>)result.Result;
+                    return (InterceptResult)result.Result;
                 }
 
                 // 调用基类方法
-                returnValue = await base.AsyncT9(l);
+                returnValue = await base.AsyncT9(l, foo);
 
-                result = wrapper.CalledIntercepts(this, ".ctor", returnValue);
+                result = wrapper.CalledIntercepts(this, parameters, returnValue);
 
                 if (result.HasResult)
                 {
-                    return await (ValueTask<long>)result.Result;
+                    return (InterceptResult)result.Result;
                 }
 
                 return returnValue;
             }
             catch (Exception ex)
             {
-                result = wrapper.ExceptionIntercept(this, ".ctor", parameters, returnValue, ex);
+                result = wrapper.ExceptionIntercept(this, parameters, returnValue, ex);
                 if (result.HasResult)
                 {
-                    return await (ValueTask<long>)result.Result;
+                    return (InterceptResult)result.Result;
                 }
 
                 throw ex;
             }
         }
 
-        //public override async Task<string> AsyncT10(int x, int y)
-        //{
-        //    Func<int, int, Task<string>> fun = async (int a, int b) => await base.AsyncT10(a, b);
-        //    return await fun(x, y);
-        //}
+        public override async Task AsyncT10(int x, int y, Exception ex, InterceptResult intercept)
+        {
+            var wrapper = _wrappers.GetWrapper(10000);
+            if (wrapper == null)
+            {
+                // 调用基类方法
+                await base.AsyncT10(x, y, ex, intercept);
+                return;
+            }
+
+            Object[] parameters = new object[4]
+            {
+                x,y,ex,intercept
+            };
+            InterceptResult result;
+            try
+            {
+                result = wrapper.CallingIntercepts(this, parameters);
+                if (result.HasResult)
+                {
+                    return;
+                }
+
+                // 调用基类方法
+                await base.AsyncT10(x, y, ex, intercept);
+
+                result = wrapper.CalledIntercepts(this, parameters, null);
+
+                if (result.HasResult)
+                {
+                    return;
+                }
+            }
+            catch (Exception e)
+            {
+                result = wrapper.ExceptionIntercept(this, parameters, null, e);
+                if (result.HasResult)
+                {
+                    return;
+                }
+
+                throw e;
+            }
+        }
     }
 
     public class GenericTs<T1, T2>
@@ -690,95 +734,164 @@ namespace KiraNet.AspectFlare.Test
         }
     }
 
+    //[Called]
+    //[Calling]
+    //public class BarBase
+    //{
+    //    public virtual async Task Async1(int x, Exception ex, string s, long l)
+    //    {
+    //        await Task.CompletedTask;
+    //    }
 
-    public class BarBase
-    {
-        public virtual async Task Async1(int x, Exception ex, string s, long l)
-        {
-            await Task.CompletedTask;
-        }
+    //    public virtual async Task<Exception> Async2(int x, Exception ex)
+    //    {
+    //        await Task.CompletedTask;
+    //        return new Exception(x.ToString(), ex);
+    //    }
 
-        public virtual async Task<Exception> Async2(int x, Exception ex)
-        {
-            await Task.CompletedTask;
-            return new Exception(x.ToString(), ex);
-        }
+    //    public virtual async ValueTask<Exception> Async3(int x, Exception ex)
+    //    {
+    //        await Task.CompletedTask;
+    //        return new Exception(x.ToString(), ex);
+    //    }
 
-        public virtual async ValueTask<Exception> Async3(int x, Exception ex)
-        {
-            await Task.CompletedTask;
-            return new Exception(x.ToString(), ex);
-        }
-    }
+    //    public virtual void Sync1(ref int x, out Exception y)
+    //    {
+    //        y = new Exception();
+    //    }
+    //}
 
 
-    public class Bar : BarBase
-    {
-        private InterceptorWrapperCollection _wrappers;
-        private Func<object> async1;
-        private Caller caller1;
+    //public class Bar : BarBase
+    //{
+    //    private InterceptorWrapperCollection _wrappers;
+    //    private Func<object> async1;
+    //    private Caller caller1;
 
-        private Func<object> async2;
-        private Caller caller2;
+    //    private Func<object> async2;
+    //    private Caller caller2;
 
-        private Func<object> async3;
-        private Caller caller3;
+    //    private Func<object> async3;
+    //    private Caller caller3;
 
-        private void T(ref int x)
-        {
+    //    private Func<object> sync1;
+    //    private Caller caller4;
 
-        }
+    //    private Func<object> sync2;
+    //    private Caller caller5;
 
-        public override Task Async1(int x, Exception ex, string s, long l)
-        {
-            if (caller1 == null)
-            {
-                caller1 = new Caller(_wrappers.GetWrapper(1000), MethodType.Type);
-            }
+    //    public Bar()
+    //    {
+    //        _wrappers = new InterceptorWrapperCollection(typeof(BarBase));
+    //    }
 
-            if (async1 == null)
-            {
-                async1 = () => base.Async1(x, ex, s, l);
-            }
+    //    private void T(ref int x)
+    //    {
 
-            object[] p = new object[4];
-            p[0] = x;
-            p[1] = ex;
-            p[2] = s;
-            p[3] = l;
+    //    }
 
-            caller1.Call<object>(this, String.Empty, async1, p);
-            _wrappers
-        }
+    //    public override Task Async1(int x, Exception ex, string s, long l)
+    //    {
+    //        if (caller1 == null)
+    //        {
+    //            var wrapper = _wrappers.GetWrapper(10000);
+    //            if (wrapper == null)
+    //            {
+    //                return base.Async1(x, ex, s, l);
+    //            }
 
-        public override Task<Exception> Async2(int x, Exception ex)
-        {
-            if (caller2 == null)
-            {
-                caller2 = new Caller(_wrappers.GetWrapper(1000));
-            }
+    //            caller1 = _wrappers.GetWrapper(10000).GetCaller();
+    //        }
+    //        if (async1 == null)
+    //        {
+    //            async1 = () => base.Async1(x, ex, s, l);
+    //        }
 
-            if (async2 == null)
-            {
-                async2 = () => base.Async2(x, ex);
-            }
+    //        var parameters = new object[4];
+    //        parameters[0] = x;
+    //        parameters[1] = ex;
+    //        parameters[2] = s;
+    //        parameters[3] = l;
 
-            return caller2.CallTaskOfT(this, String.Empty, async2, x, ex);
-        }
+    //        caller1.Call<object>(this, ".method", MethodType.AsyncTask, async1, parameters);
+    //        if(caller1.HasException)
+    //        {
+    //            throw caller1.Exception;
+    //        }
+    //        return Task.CompletedTask;
+    //    }
 
-        public override ValueTask<Exception> Async3(int x, Exception ex)
-        {
-            if (caller3 == null)
-            {
-                caller3 = new Caller(_wrappers.GetWrapper(1000));
-            }
+    //    public override Task<Exception> Async2(int x, Exception ex)
+    //    {
+    //        if (caller2 == null)
+    //        {
+    //            caller2 = _wrappers.GetWrapper(10000).GetCaller();
+    //        }
+    //        if (async2 == null)
+    //        {
+    //            async2 = () => base.Async2(x, ex);
+    //        }
 
-            if (async3 == null)
-            {
-                async3 = () => base.Async3(x, ex);
-            }
+    //        var parameters = new object[2];
+    //        parameters[0] = x;
+    //        parameters[1] = ex;
 
-            return caller3.CallValueTaskOfT(this, String.Empty, async3, x, ex);
-        }
-    }
+    //        caller2.Call<Exception>(this, ".method", MethodType.AsyncTaskOfType, async2, parameters);
+    //        if (caller2.HasException)
+    //        {
+    //            throw caller2.Exception;
+    //        }
+    //        return Task.FromResult<Exception>((Exception)caller2.Result);
+    //    }
+
+    //    public override ValueTask<Exception> Async3(int x, Exception ex)
+    //    {
+    //        if (caller3 == null)
+    //        {
+    //            caller3 = _wrappers.GetWrapper(10000).GetCaller();
+    //        }
+    //        if (async3 == null)
+    //        {
+    //            async3 = () => base.Async3(x, ex);
+    //        }
+
+    //        var parameters = new object[2];
+    //        parameters[0] = x;
+    //        parameters[1] = ex;
+
+    //        caller3.Call<Exception>(this, ".method", MethodType.AsyncValueTaskOfType, async3, parameters);
+    //        if (caller3.HasException)
+    //        {
+    //            throw caller3.Exception;
+    //        }
+    //        return new ValueTask<Exception>((Exception)caller3.Result);
+    //    }
+
+    //    //public override void Sync1(ref int x, out Exception y)
+    //    //{
+    //    //    if (caller4 == null)
+    //    //    {
+    //    //        caller4 = _wrappers.GetWrapper(10000).GetCaller();
+    //    //    }
+    //    //    if (sync1 == null)
+    //    //    {
+    //    //        sync1 = () =>
+    //    //        {
+    //    //            base.Sync1(ref x, out y);
+    //    //            return null;
+    //    //        };
+    //    //    }
+
+    //    //    var parameters = new object[2];
+    //    //    parameters[0] = x;
+    //    //    parameters[1] = ex;
+
+    //    //    caller3.Call<Exception>(this, ".method", MethodType.AsyncValueTaskOfType, async3, parameters);
+    //    //    if (caller3.HasException)
+    //    //    {
+    //    //        throw caller3.Exception;
+    //    //    }
+    //    //    return new ValueTask<Exception>((Exception)caller3.Result);
+    //    //}
+    //}
 }

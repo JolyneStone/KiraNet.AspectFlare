@@ -4,7 +4,7 @@ namespace KiraNet.AspectFlare.DynamicProxy
 {
     internal class DefineWrappersOperator : IGenerateOperator
     {
-        public void Generate(GenerateTypeContext context)
+        public void Generate(GeneratorTypeContext context)
         {
             var fieldBuider = context.TypeBuilder.DefineField(
                 "<_wrappers>",
@@ -12,7 +12,7 @@ namespace KiraNet.AspectFlare.DynamicProxy
                 FieldAttributes.Private
             );
 
-            context.WrappersField = fieldBuider;
+            context.Wrappers = fieldBuider;
         }
     }
 }
