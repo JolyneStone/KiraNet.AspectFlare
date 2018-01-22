@@ -4,21 +4,21 @@ namespace KiraNet.AspectFlare.DynamicProxy.Exensions
 {
     public static class ProxyGeneratorExensions
     {
-        public static object Generate(this IProxyGenerator proxyGenerator, Type serviceType)
+        public static object Generate(this IProxyContainer proxyGenerator, Type serviceType)
         {
-            return proxyGenerator.Generate(serviceType, null);
+            return proxyGenerator.GetProxy(serviceType, (object[])null);
         }
 
-        public static T Generate<T>(this IProxyGenerator proxyGenerator)
+        public static T Generate<T>(this IProxyContainer proxyGenerator)
             where T : class
         {
-            return proxyGenerator.Generate(typeof(T), null) as T;
+            return proxyGenerator.GetProxy(typeof(T), (object[])null) as T;
         }
 
-        public static T Generate<T>(this IProxyGenerator proxyGenerator, params object[] parameters)
+        public static T Generate<T>(this IProxyContainer proxyGenerator, params object[] parameters)
         where T : class
         {
-            return proxyGenerator.Generate(typeof(T), parameters) as T;
+            return proxyGenerator.GetProxy(typeof(T), parameters) as T;
         }
     }
 }

@@ -14,7 +14,7 @@ namespace KiraNet.AspectFlare.Test
         public void GenerateProxyByClassTest()
         {
             IProxyTypeGenerator proxyTypeGenerator = new ProxyTypeGenerator();
-            var fooBaseType = proxyTypeGenerator.GenerateProxyByClass(typeof(FooBase));
+            var fooBaseType = proxyTypeGenerator.GenerateProxyByClass(typeof(FooBase)).ProxyType;
             Assert.NotNull(fooBaseType);
             var fooBase1 = Activator.CreateInstance(fooBaseType, 1, new char[] { '2', '3' });
             Assert.NotNull(fooBase1);
@@ -36,7 +36,7 @@ namespace KiraNet.AspectFlare.Test
         public void GenerateProxyByGenericClassTest()
         {
             IProxyTypeGenerator proxyTypeGenerator = new ProxyTypeGenerator();
-            var genericTsRawType = proxyTypeGenerator.GenerateProxyByClass(typeof(GenericTs<,>));
+            var genericTsRawType = proxyTypeGenerator.GenerateProxyByClass(typeof(GenericTs<,>)).ProxyType;
             var genericTsType = genericTsRawType.MakeGenericType(typeof(List<ArrayList>), typeof(ArrayList));
             var genericTs = Activator.CreateInstance(genericTsType, new List<ArrayList>(), new ArrayList());
             Assert.NotNull(genericTs);
@@ -46,7 +46,7 @@ namespace KiraNet.AspectFlare.Test
         public void GenerateProxyMethodByClassTest()
         {
             IProxyTypeGenerator proxyTypeGenerator = new ProxyTypeGenerator();
-            var fooBaseType = proxyTypeGenerator.GenerateProxyByClass(typeof(FooBase));
+            var fooBaseType = proxyTypeGenerator.GenerateProxyByClass(typeof(FooBase)).ProxyType;
             var foo = Activator.CreateInstance(fooBaseType, 1, new char[] { '2', '3' }) as FooBase;
             Assert.NotNull(fooBaseType);
             var x = 0;
@@ -71,7 +71,7 @@ namespace KiraNet.AspectFlare.Test
         public async void GenerateProxyClassTest()
         {
             IProxyTypeGenerator proxyTypeGenerator = new ProxyTypeGenerator();
-            var type = proxyTypeGenerator.GenerateProxyByClass(typeof(ClassBase));
+            var type = proxyTypeGenerator.GenerateProxyByClass(typeof(ClassBase)).ProxyType;
             Assert.NotNull(type);
             var classInstance = (ClassBase)Activator.CreateInstance(type, 1);
             var str = await classInstance.AsyncT8(default(InterceptResult));

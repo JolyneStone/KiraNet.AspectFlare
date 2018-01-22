@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -7,15 +8,15 @@ using KiraNet.AspectFlare.Utilities;
 
 namespace KiraNet.AspectFlare.DynamicProxy
 {
-    internal class ImplementConstructorsOperator : CallMethodOperator
+    internal class ImplementConstructorsOperator : GenerateMethodOperator
     {
         public override void Generate(GeneratorTypeContext context)
         {
             GenerateInit(context);
-            var proxyType = context.ProxyType;
+            var classType = context.ClassType;
             var typeBuilder = context.TypeBuilder;
-            bool hasTypeIntercept = proxyType.HasInterceptAttribute();
-            foreach (var ctor in  proxyType.GetConstructors(
+            bool hasTypeIntercept = classType.HasInterceptAttribute();
+            foreach (var ctor in classType.GetConstructors(
                                         BindingFlags.CreateInstance |
                                         BindingFlags.Instance |
                                         BindingFlags.Public |
@@ -23,7 +24,7 @@ namespace KiraNet.AspectFlare.DynamicProxy
                                     ).Where(
                                      x =>
                                         x.IsPublic ||
-                                        x.IsFamily || 
+                                        x.IsFamily ||
                                         !(x.IsAssembly || x.IsFamilyAndAssembly || x.IsFamilyOrAssembly)
                                     ))
             {
@@ -52,9 +53,8 @@ namespace KiraNet.AspectFlare.DynamicProxy
                 constructorBuilder.SetMethodParameters(baseParameterInfos);
                 ILGenerator ctorGenerator = constructorBuilder.GetILGenerator();
                 GeneratorConstructor(
-                        proxyType,
                         constructorBuilder,
-                        ctor, 
+                        ctor,
                         ctorGenerator,
                         context,
                         baseParameterInfos,
@@ -64,8 +64,7 @@ namespace KiraNet.AspectFlare.DynamicProxy
         }
 
         private void GeneratorConstructor(
-            Type proxyType,
-            ConstructorBuilder methodBuilder, 
+            ConstructorBuilder methodBuilder,
             ConstructorInfo constructor,
             ILGenerator ctorGenerator,
             GeneratorTypeContext context,
@@ -77,22 +76,43 @@ namespace KiraNet.AspectFlare.DynamicProxy
             ctorGenerator.Emit(OpCodes.Ldarg_0);
             ctorGenerator.Emit(OpCodes.Call, context.InitMethod);
 
-            if (isIntercept)
+            if (context.Interface != null)
             {
-                // 调用基类构造函数 base(x)
-                // 注：这里的调用位置在C#代码中无法表示，因为在C#中调用基类构造函数必须在方法参数列表之后
-                GenerateMethod(methodBuilder, constructor, ctorGenerator, context, parameters);
+                ctorGenerator.Emit(OpCodes.Ldarg_0);
+                ctorGenerator.Emit(OpCodes.Call, ReflectionInfoProvider.ObjectConstructor);
+
+                ctorGenerator.Emit(OpCodes.Ldarg_0);
+                for (var i = 1; i <= parameters.Length; i++)
+                {
+                    ctorGenerator.Emit(OpCodes.Ldarg_S, i);
+                }
+
+                ctorGenerator.Emit(OpCodes.Newobj, constructor);
+                ctorGenerator.Emit(OpCodes.Stfld, context.Interface);
             }
             else
             {
-                ctorGenerator.Emit(OpCodes.Ldarg_0);
-                for (var i = 0; i < parameters.Length; i++)
+                if (isIntercept)
                 {
-                    ctorGenerator.Emit(OpCodes.Ldarg_S, i + 1);
+                    context.MethodHandles.Add(constructor.MethodHandle);
+
+                    // 调用基类构造函数 base(x)
+                    // 注：这里的调用位置在C#代码中无法表示，因为在C#中调用基类构造函数必须在方法参数列表之后
+                    GenerateMethod(methodBuilder, constructor, null, ctorGenerator, context, parameters);
                 }
-                ctorGenerator.Emit(OpCodes.Call, constructor);
-                ctorGenerator.Emit(OpCodes.Ret);
+                else
+                {
+                    ctorGenerator.Emit(OpCodes.Ldarg_0);
+                    for (var i = 1; i <= parameters.Length; i++)
+                    {
+                        ctorGenerator.Emit(OpCodes.Ldarg_S, i);
+                    }
+
+                    ctorGenerator.Emit(OpCodes.Call, constructor);
+                }
             }
+
+            ctorGenerator.Emit(OpCodes.Ret);
         }
 
         public void GenerateInit(GeneratorTypeContext context)
@@ -106,11 +126,21 @@ namespace KiraNet.AspectFlare.DynamicProxy
 
             var initGenerator = initBuilder.GetILGenerator();
             var typeLocal = initGenerator.DeclareLocal(typeof(Type));
-
+            var hasInterface = context.InterfaceType != null;
             initGenerator.Emit(OpCodes.Ldarg_0);
-            initGenerator.Emit(OpCodes.Ldtoken, context.ProxyType);
+            if (hasInterface)
+            {
+                initGenerator.Emit(OpCodes.Ldtoken, context.InterfaceType);
+                initGenerator.Emit(OpCodes.Call, ReflectionInfoProvider.GetTypeFromHandle);
+            }
+            initGenerator.Emit(OpCodes.Ldtoken, context.ClassType);
             initGenerator.Emit(OpCodes.Call, ReflectionInfoProvider.GetTypeFromHandle);
-            initGenerator.Emit(OpCodes.Newobj, ReflectionInfoProvider.InterceptorWrapperCollectionByType);
+            initGenerator.Emit(OpCodes.Ldtoken, context.TypeBuilder);
+            initGenerator.Emit(OpCodes.Call, ReflectionInfoProvider.GetTypeFromHandle);
+            initGenerator.Emit(OpCodes.Newobj, hasInterface ?
+                ReflectionInfoProvider.InterceptorWrapperCollectionByInterface :
+                ReflectionInfoProvider.InterceptorWrapperCollectionByClass
+            );
             initGenerator.Emit(OpCodes.Stfld, context.Wrappers);
             initGenerator.Emit(OpCodes.Ret);
 

@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using KiraNet.AspectFlare.Test;
-using System.Reflection;
-using System.Collections.Generic;
 using KiraNet.AspectFlare.DynamicProxy;
-using System.Reflection.Emit;
+using KiraNet.AspectFlare.Test;
 
 namespace ConsoleTest
 {
@@ -13,34 +8,28 @@ namespace ConsoleTest
     {
         static void Main(string[] args)
         {
-            IProxyTypeGenerator proxyTypeGenerator = new ProxyTypeGenerator();
-            var baseType = proxyTypeGenerator.GenerateProxyByClass(typeof(T));
-            //var asd = typeof(T).GetNestedTypes(BindingFlags.NonPublic | BindingFlags.Public)[0];
-            //foreach (var x in asd.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
-            //{
-            //    Console.WriteLine(x);
-            //}
+            //IProxyTypeGenerator proxyTypeGenerator = new ProxyTypeGenerator();
+            //var interfaceType = proxyTypeGenerator.GenerateProxyByInterface(typeof(ITs), typeof(Tss));
+            //var t0 = (ITs)Activator.CreateInstance(interfaceType, 1);
+            //t0.T0();
 
-            //Console.WriteLine(typeof(T).GetMethod("T0", BindingFlags.Public | BindingFlags.Instance).GetParameters()== null);
-
-            var t1 = (T)Activator.CreateInstance(baseType);
-            //var type = t1.GetType().GetNestedTypes(BindingFlags.NonPublic | BindingFlags.Public)[0];
-            //var st = type.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.CreateInstance)[0].Invoke(null);
-            //Console.WriteLine();
-            //foreach(var x in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
-            //{
-            //    Console.WriteLine(x);
-            //}
-            ////type.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance).Invoke(st, null);
+            //var baseType = proxyTypeGenerator.GenerateProxyByClass(typeof(T));
+            //var t1 = (T)Activator.CreateInstance(baseType);
             InterceptResult x = default(InterceptResult);
             InterceptResult y = default(InterceptResult);
             Exception ex1 = null;
             Exception ex2 = null;
-            //t1.T2(x, y, ex1, ex2);
             InterceptResult xx = default(InterceptResult);
             Exception yy = null;
+            ////var s = t1.Tz(out x);
+            //var q = t1.T1(ref x, out y, ref ex1, out ex2, xx, yy);
 
-            var q = t1.T1(ref x, out y, ref ex1, out ex2, xx, yy);
+            IProxyContainer proxyContainer = new ProxyContainer();
+            //var fuck = (T)proxyContainer.GetProxy(typeof(T));
+            //fuck.T1(ref x, out y, ref ex1, out ex2, xx, yy);
+
+            var tss = (ITs)proxyContainer.GetProxy(typeof(ITs), typeof(Tss), 1);
+            tss.T1(ref x, out y, ref ex1, out ex2);
             Console.ReadKey();
         } 
     }

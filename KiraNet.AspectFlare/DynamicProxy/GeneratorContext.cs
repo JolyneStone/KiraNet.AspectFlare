@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Reflection.Emit;
+using KiraNet.AspectFlare.Utilities;
 
 namespace KiraNet.AspectFlare.DynamicProxy
 {
@@ -10,7 +11,7 @@ namespace KiraNet.AspectFlare.DynamicProxy
         {
             this.TypeBuilder = context.TypeBuilder;
             this.Wrappers = context.Wrappers;
-            this.ProxyType = context.ProxyType;
+            this.ClassType = context.ClassType;
             this.InterfaceType = context.InterfaceType;
             this.Interface = context.Interface;
             this.InitMethod = context.InitMethod;
@@ -20,9 +21,10 @@ namespace KiraNet.AspectFlare.DynamicProxy
         public MethodBuilder MethodBuilder { get; set; }
         public ConstructorBuilder ConstructorBuilder { get; set; }
         public MethodInfo Method { get; set; }
+        public MethodInfo InterfaceMethod { get; set; }
         public ConstructorInfo Constructor { get; set; }
         public ILGenerator Generator{ get; set; }
-        public ParameterInfo[] Parameters { get; set; }
+        public ParamInfo[] Parameters { get; set; }
         public Type ReturnType { get; set; }
         public LocalBuilder[] Locals { get; set; }
         public FieldInfo Caller { get; set; }

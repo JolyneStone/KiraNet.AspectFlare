@@ -4,7 +4,7 @@ namespace KiraNet.AspectFlare.DynamicProxy
 {
     public interface IProxyTypeGenerator
     {
-        Type GenerateProxyByClass(Type proxyType);
-        Type GenerateProxyByInterface(Type interfaceType, Type proxyType);
+        ProxyDescriptor GenerateProxyByClass(Type classType);
+        ProxyDescriptor GenerateProxyByInterface(Type interfaceType, Type classType);
     }
 }

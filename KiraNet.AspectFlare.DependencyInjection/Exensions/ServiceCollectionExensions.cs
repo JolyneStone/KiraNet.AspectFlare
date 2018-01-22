@@ -19,7 +19,7 @@ namespace KiraNet.AspectFlare.DependencyInjection
                 .AddSingleton<ProxyServiceCollection>(proxyServices)
                 .AddSingleton<IProxyConfiguration, ProxyConfiguration>(_ => ProxyConfiguration.Configuration)
                 .AddScoped<IProxyValidator, ProxyValidator>()
-                .AddScoped<IProxyGenerator, ProxyGenerator>()
+                .AddScoped<IProxyContainer, ProxyContainer>()
                 .AddScoped<IProxyTypeGenerator, ProxyTypeGenerator>();
 
             return proxyServices;

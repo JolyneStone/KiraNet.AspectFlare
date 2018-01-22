@@ -22,14 +22,25 @@ namespace KiraNet.AspectFlare.Test
 
         public virtual void T0()
         {
+        }
 
+        public virtual ref int Tr0(ref int x)
+        {
+            ref int j = ref x;
+            return ref j;
+        }
+
+        public virtual ref Exception Tr0(ref Exception x)
+        {
+            ref Exception j = ref x;
+            return ref j;
         }
 
         [Calling]
         public virtual int T1(ref InterceptResult x, out InterceptResult y, ref Exception ex1, out Exception ex2, InterceptResult xx, Exception yy)
         {
             y = default(InterceptResult);
-            ex2 = null;
+            ex2 = new Exception();
             return 1;
         }
 
@@ -71,9 +82,14 @@ namespace KiraNet.AspectFlare.Test
         private TaskCaller _caller3;
         private TaskCaller<int> _caller4;
         private ValueTaskCaller<int> _caller5;
+        private ReturnCaller<int> _callerz;
 
         public TFuck(int x, Exception ex1, Exception ex2) : base(x, ex1, ex2) { }
-        public TFuck(ref int x, out Exception ex1, Exception ex2) : base(ref x, out ex1, ex2) { }
+        public TFuck(ref int x, out Exception ex1, Exception ex2, IList<RuntimeMethodHandle> methodHandles) : base(ref x, out ex1, ex2)
+        {
+            Init();
+        }
+
         public TFuck() : base()
         {
             if (_callerInit == null)
@@ -89,12 +105,11 @@ namespace KiraNet.AspectFlare.Test
 
         private void Init()
         {
-            _wrappers = new InterceptorWrapperCollection(typeof(T));
+            _wrappers = new InterceptorWrapperCollection(typeof(T), typeof(TFuck));
         }
 
         public override void T0()
         {
-            base.T0();
             if (_caller0 == null)
             {
                 InterceptorWrapper wrapper = _wrappers.GetWrapper(10000);
@@ -114,18 +129,18 @@ namespace KiraNet.AspectFlare.Test
                 _caller1 = new ReturnCaller<int>(wrapper);
             }
 
-            InterceptResult x1 = x;
-            InterceptResult y1 = default(InterceptResult);
-            Exception ex_1 = ex1;
-            Exception ex_2 = default(Exception);
             object[] parameters = new object[6];
+            InterceptResult x1 = x;
             parameters[0] = x;
+            InterceptResult y1 = default(InterceptResult);
             parameters[1] = y1;
+            Exception ex_1 = ex1;
             parameters[2] = ex1;
+            Exception ex_2 = default(Exception);
             parameters[3] = ex_2;
             parameters[4] = xx;
             parameters[5] = yy;
-            Func<int> call = () => base.T1(ref x1, out y1, ref ex_1, out ex_2, xx, yy);
+            Func<int> call = () => { return base.T1(ref x1, out y1, ref ex_1, out ex_2, xx, yy); };
             int returnValue = _caller1.Call(this, call, parameters);
             y = y1;
             ex2 = ex_2;

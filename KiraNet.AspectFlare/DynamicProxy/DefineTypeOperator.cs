@@ -4,34 +4,34 @@ using System.Reflection.Emit;
 
 namespace KiraNet.AspectFlare.DynamicProxy
 {
-    internal class DefineTypeOperator : IGenerateOperator
+    internal class DefineTypeOperator : IGenerateTypeOperator
     {
         public void Generate(GeneratorTypeContext context)
         {
-            var proxyType = context.ProxyType;
+            var classType = context.ClassType;
             if (context.InterfaceType == null)
             {  
                 var typeBuilder = context.ModuleBuilder.DefineType(
-                        $"{proxyType.Name}_AspectFlare",
-                        proxyType.Attributes
+                        $"{classType.Name}_AspectFlare",
+                        classType.Attributes
                     );
 
-                typeBuilder.SetParent(proxyType);
+                typeBuilder.SetParent(classType);
                 context.TypeBuilder = typeBuilder;
             }
             else
             {
                 context.TypeBuilder = context.ModuleBuilder.DefineType(
-                         $"<AspectFlare>{proxyType.Name}",
-                         proxyType.Attributes,
+                         $"<AspectFlare>{classType.Name}",
+                         classType.Attributes,
                          typeof(object),
                          new Type[] { context.InterfaceType }
                      );
             }
 
-            if(proxyType.IsGenericTypeDefinition)
+            if(classType.IsGenericTypeDefinition)
             {
-                GenerateGeneric(proxyType, context.TypeBuilder);
+                GenerateGeneric(classType, context.TypeBuilder);
             }
         }
 

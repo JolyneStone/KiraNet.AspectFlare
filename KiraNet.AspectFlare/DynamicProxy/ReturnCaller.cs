@@ -8,7 +8,6 @@ namespace KiraNet.AspectFlare.DynamicProxy
 
         public override T Call(object owner, Func<T> call, object[] parameters)
         {
-
             if (_wrapper == null)
             {
                 return call();
@@ -23,6 +22,8 @@ namespace KiraNet.AspectFlare.DynamicProxy
                 {
                     return (T)result.Result;
                 }
+
+                call();
 
                 returnValue = call();
 

@@ -1,10 +1,9 @@
-﻿using KiraNet.AspectFlare.DynamicProxy;
-using KiraNet.AspectFlare.Validator;
-using Microsoft.Extensions.DependencyInjection;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq.Expressions;
+using KiraNet.AspectFlare.DynamicProxy;
+using KiraNet.AspectFlare.Validator;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace KiraNet.AspectFlare.DependencyInjection
 {
@@ -35,21 +34,21 @@ namespace KiraNet.AspectFlare.DependencyInjection
                 return;
             }
 
-            Type proxyType = item.ImplementationType ??
+            Type classType = item.ImplementationType ??
                             item.ImplementationInstance?.GetType() ??
                             //item.ImplementationFactory?.GetType().GetGenericArguments()[1] ??
                             null;
-            if (_validator.Validate(item.ServiceType, proxyType))
+            if (_validator.Validate(item.ServiceType, classType))
             {
                 IExpressionConverter<IServiceProvider, object> expressionConvertr = new ServiceProviderExpressionConverter();
                 Type implementType;
                 if (item.ServiceType.IsInterface)
                 {
-                    implementType = _proxyTypeGenerator.GenerateProxyByInterface(item.ServiceType, proxyType);
+                    implementType = _proxyTypeGenerator.GenerateProxyByInterface(item.ServiceType, classType).ProxyType;
                 }
                 else
                 {
-                    implementType = _proxyTypeGenerator.GenerateProxyByClass(proxyType);
+                    implementType = _proxyTypeGenerator.GenerateProxyByClass(classType).ProxyType;
                 }
 
                 if(implementType == null)

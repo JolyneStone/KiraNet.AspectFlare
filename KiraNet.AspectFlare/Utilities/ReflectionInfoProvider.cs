@@ -1,6 +1,7 @@
 ﻿using KiraNet.AspectFlare.DynamicProxy;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -21,7 +22,8 @@ namespace KiraNet.AspectFlare.Utilities
         private static MethodInfo _getCurrentMethod;
         private static MethodInfo _getTypeFromHandle;
         private static MethodInfo _getInterceptorWrapperDictionary;
-        private static ConstructorInfo _interceptorWrapperCollectionByType;
+        private static ConstructorInfo _interceptorWrapperCollectionByClass;
+        private static ConstructorInfo _interceptorWrapperCollectionByInterface;
         private static MethodInfo _getWrapper;
         private static MethodInfo _callingIntercepts;
         private static MethodInfo _calledIntercepts;
@@ -265,23 +267,45 @@ namespace KiraNet.AspectFlare.Utilities
             }
         }
 
-        public static ConstructorInfo InterceptorWrapperCollectionByType
+        public static ConstructorInfo InterceptorWrapperCollectionByClass
         {
             get
             {
-                if (_interceptorWrapperCollectionByType == null)
+                if (_interceptorWrapperCollectionByClass == null)
                 {
-                    _interceptorWrapperCollectionByType = typeof(InterceptorWrapperCollection)
+                    var type = typeof(Type);
+                    _interceptorWrapperCollectionByClass = typeof(InterceptorWrapperCollection)
                                 .GetConstructor(
                                     BindingFlags.Public |
                                     BindingFlags.Instance,
                                     null,
-                                    new Type[] { typeof(Type) },
+                                    new Type[] { type, type },
                                     null
                                 );
                 }
 
-                return _interceptorWrapperCollectionByType;
+                return _interceptorWrapperCollectionByClass;
+            }
+        }
+
+        public static ConstructorInfo InterceptorWrapperCollectionByInterface
+        {
+            get
+            {
+                if (_interceptorWrapperCollectionByInterface == null)
+                {
+                    var type = typeof(Type);
+                    _interceptorWrapperCollectionByInterface = typeof(InterceptorWrapperCollection)
+                                .GetConstructor(
+                                    BindingFlags.Public |
+                                    BindingFlags.Instance,
+                                    null,
+                                    new Type[] { type, type, type },
+                                    null
+                                );
+                }
+
+                return _interceptorWrapperCollectionByInterface;
             }
         }
 
@@ -436,12 +460,12 @@ namespace KiraNet.AspectFlare.Utilities
         {
             get
             {
-                if(_asyncStateMachineAttributeConstructor == null)
+                if (_asyncStateMachineAttributeConstructor == null)
                 {
                     _asyncStateMachineAttributeConstructor = typeof(AsyncStateMachineAttribute).GetConstructor(
                             BindingFlags.Public | BindingFlags.Instance,
                             null,
-                            new Type[] {typeof(Type)},
+                            new Type[] { typeof(Type) },
                             null
                         );
                 }
@@ -469,7 +493,7 @@ namespace KiraNet.AspectFlare.Utilities
         {
             get
             {
-                if(_moveNext == null)
+                if (_moveNext == null)
                 {
                     _moveNext = typeof(IAsyncStateMachine).GetMethod(
                             "MoveNext"
@@ -541,10 +565,10 @@ namespace KiraNet.AspectFlare.Utilities
         {
             get
             {
-                if(_objectConstructor == null)
+                if (_objectConstructor == null)
                 {
                     _objectConstructor = typeof(object).GetConstructor(
-                        BindingFlags.Public | BindingFlags.Instance, 
+                        BindingFlags.Public | BindingFlags.Instance,
                         null,
                         Type.EmptyTypes,
                         null

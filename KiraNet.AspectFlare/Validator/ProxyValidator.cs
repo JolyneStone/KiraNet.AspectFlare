@@ -11,18 +11,17 @@ namespace KiraNet.AspectFlare.Validator
         private static readonly Type CallingIntercept = typeof(CallingInterceptAttribute);
         private static readonly Type CalledIntercept = typeof(CalledInterceptAttribute);
         private static readonly Type ExceptionIntercept = typeof(ExceptionInterceptAttribute);
+
         public bool Validate(Type serviceType, Type proxyType)
         {
-            if (serviceType == null ||
-                serviceType.IsGenericTypeDefinition ||
-                serviceType.IsDefined(NonIntercept, true))
+            if (serviceType == null)
             {
                 return false;
             }
 
             if (proxyType == null ||
                 !proxyType.IsClass ||
-                !proxyType.IsValueType ||
+                proxyType.IsValueType ||
                 !proxyType.IsVisible ||
                 !proxyType.IsSealed ||
                 serviceType.IsDefined(NonIntercept, true))
@@ -30,7 +29,7 @@ namespace KiraNet.AspectFlare.Validator
                 return false;
             }
 
-            if(!proxyType.HasInterceptAttribute())
+            if (!proxyType.HasInterceptAttribute())
             {
                 return false;
             }
@@ -51,9 +50,12 @@ namespace KiraNet.AspectFlare.Validator
                     .Any(method => method.HasInterceptAttribute()))
                 &&
                 (serviceType.IsInterface &&
-                 (!(serviceType.GetMethods()
-                    .Any(method => method.HasInterceptAttribute())?
-                    true:
+                 (!(serviceType.GetMethods(
+                     BindingFlags.Public |
+                     BindingFlags.Instance |
+                     BindingFlags.DeclaredOnly)
+                    .Any(method => method.HasInterceptAttribute()) ?
+                    true :
                     serviceType.HasInterceptAttribute())))))
             {
                 return false;

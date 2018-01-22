@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace KiraNet.AspectFlare.DynamicProxy
 {
     public class InterceptorWrapper
     {
-        public IEnumerable<ICallingInterceptor> CallingInterceptors { get; set; }
-        public IEnumerable<ICalledInterceptor> CalledInterceptors { get; set; }
+        public List<ICallingInterceptor> CallingInterceptors { get; set; }
+        public List<ICalledInterceptor> CalledInterceptors { get; set; }
         public IExceptionInterceptor ExceptionInterceptor { get; set; }
 
         public InterceptResult CallingIntercepts(object owner, object[] parameters)
@@ -17,7 +16,7 @@ namespace KiraNet.AspectFlare.DynamicProxy
                 throw new System.ArgumentNullException(nameof(owner));
             }
 
-            if (CallingInterceptors == null || !CallingInterceptors.Any())
+            if (CallingInterceptors == null || CallingInterceptors.Count == 0)
             {
                 return new InterceptResult
                 {
@@ -35,7 +34,7 @@ namespace KiraNet.AspectFlare.DynamicProxy
             foreach (var callingInterceptor in CallingInterceptors)
             {
                 callingInterceptor.Calling(context);
-                if(context.HasResult)
+                if (context.HasResult)
                 {
                     return new InterceptResult
                     {
@@ -58,7 +57,7 @@ namespace KiraNet.AspectFlare.DynamicProxy
                 throw new System.ArgumentNullException(nameof(owner));
             }
 
-            if (CalledInterceptors == null || !CalledInterceptors.Any())
+            if (CalledInterceptors == null || CalledInterceptors.Count == 0)
             {
                 return new InterceptResult
                 {
@@ -123,7 +122,7 @@ namespace KiraNet.AspectFlare.DynamicProxy
             };
 
             ExceptionInterceptor.Exception(context);
-            if(context.HasResult)
+            if (context.HasResult)
             {
                 return new InterceptResult
                 {
@@ -131,7 +130,7 @@ namespace KiraNet.AspectFlare.DynamicProxy
                     Result = context.Result
                 };
             }
-          
+
             return new InterceptResult
             {
                 HasResult = false

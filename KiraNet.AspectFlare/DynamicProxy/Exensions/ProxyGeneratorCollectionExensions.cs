@@ -1,80 +1,80 @@
-﻿using System;
+﻿//using System;
 
-namespace KiraNet.AspectFlare.DynamicProxy.Exensions
-{
-    public static class ProxyGeneratorCollectionExensions
-    {
-        public static IProxyGeneratorCollection AddProxy(this IProxyGeneratorCollection collection, Type proxyType)
-        {
-            if (proxyType == null)
-            {
-                throw new ArgumentNullException(nameof(proxyType));
-            }
+//namespace KiraNet.AspectFlare.DynamicProxy.Exensions
+//{
+//    public static class ProxyGeneratorCollectionExensions
+//    {
+//        public static IProxyGeneratorCollection AddProxy(this IProxyGeneratorCollection collection, Type classType)
+//        {
+//            if (classType == null)
+//            {
+//                throw new ArgumentNullException(nameof(classType));
+//            }
 
-            if (proxyType.IsValueType)
-            {
-                throw new ArgumentException(nameof(proxyType));
-            }
+//            if (classType.IsValueType)
+//            {
+//                throw new ArgumentException(nameof(classType));
+//            }
 
-            return collection.AddProxy(new ProxyDescriptor
-            {
-                ServiceType = proxyType,
-                ProxyType = proxyType
-            });
-        }
+//            return collection.AddProxy(new ProxyDescriptor
+//            {
+//                InterfaceType = classType,
+//                ClassType = classType
+//            });
+//        }
 
-        public static IProxyGeneratorCollection AddProxy(this IProxyGeneratorCollection collection, Type serviceType, Type proxyType)
-        {
-            if (serviceType == null)
-            {
-                throw new ArgumentNullException(nameof(serviceType));
-            }
+//        public static IProxyGeneratorCollection AddProxy(this IProxyGeneratorCollection collection, Type interfaceType, Type classType)
+//        {
+//            if (interfaceType == null)
+//            {
+//                throw new ArgumentNullException(nameof(interfaceType));
+//            }
 
-            if (proxyType == null)
-            {
-                throw new ArgumentNullException(nameof(proxyType));
-            }
+//            if (classType == null)
+//            {
+//                throw new ArgumentNullException(nameof(classType));
+//            }
 
-            if (serviceType.IsValueType)
-            {
-                throw new ArgumentException(nameof(serviceType));
-            }
+//            if (interfaceType.IsValueType)
+//            {
+//                throw new ArgumentException(nameof(interfaceType));
+//            }
 
-            if (proxyType.IsValueType)
-            {
-                throw new ArgumentException(nameof(proxyType));
-            }
+//            if (classType.IsValueType)
+//            {
+//                throw new ArgumentException(nameof(classType));
+//            }
 
-            return collection.AddProxy(new ProxyDescriptor
-            {
-                ServiceType = serviceType,
-                ProxyType = proxyType
-            });
-        }
+//            return collection.AddProxy(new ProxyDescriptor
+//            {
+//                InterfaceType = interfaceType,
+//                ClassType = classType
+//            });
+//        }
 
-        public static IProxyGeneratorCollection AddProxy<TProxy>(this IProxyGeneratorCollection collection)
-            where TProxy : class
+//        public static IProxyGeneratorCollection AddProxy<TClass>(this IProxyGeneratorCollection collection)
+//            where TClass : class
 
-        {
-            var type = typeof(TProxy);
-            return collection.AddProxy(new ProxyDescriptor
-            {
-                ServiceType = type,
-                ProxyType = type
-            });
-        }
+//        {
+//            var type = typeof(TClass);
+//            return collection.AddProxy(new ProxyDescriptor
+//            {
+//                InterfaceType = type,
+//                ClassType = type
+//            });
+//        }
 
 
-        public static IProxyGeneratorCollection AddProxy<TService, TProxy>(
-            this IProxyGeneratorCollection collection)
-            where TService : class
-            where TProxy : class, TService
-        {
-            return collection.AddProxy(new ProxyDescriptor
-            {
-                ServiceType = typeof(TService),
-                ProxyType = typeof(TProxy)
-            });
-        }
-    }
-}
+//        public static IProxyGeneratorCollection AddProxy<TInterface, TClass>(
+//            this IProxyGeneratorCollection collection)
+//            where TInterface : class
+//            where TClass : class, TInterface
+//        {
+//            return collection.AddProxy(new ProxyDescriptor
+//            {
+//                InterfaceType = typeof(TInterface),
+//                ClassType = typeof(TClass)
+//            });
+//        }
+//    }
+//}

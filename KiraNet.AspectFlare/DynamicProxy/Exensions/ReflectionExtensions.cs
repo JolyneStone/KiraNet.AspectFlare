@@ -115,8 +115,8 @@ namespace KiraNet.AspectFlare.DynamicProxy
 
             foreach (var method in methods)
             {
-                var methodCallingInterceptors = method.GetCustomAttributes<CallingInterceptAttribute>(true).OfType<ICallingInterceptor>().ToArray();
-                var methodCalledInterceptors = method.GetCustomAttributes<CalledInterceptAttribute>(true).OfType<ICalledInterceptor>().ToArray();
+                var methodCallingInterceptors = method.GetCustomAttributes<CallingInterceptAttribute>(true).OfType<ICallingInterceptor>().ToList();
+                var methodCalledInterceptors = method.GetCustomAttributes<CalledInterceptAttribute>(true).OfType<ICalledInterceptor>().ToList();
                 var methodExceptionInterceptor = method.GetCustomAttribute<ExceptionInterceptAttribute>(true) as IExceptionInterceptor;
 
                 dictionary.Add(method.MetadataToken, new InterceptorWrapper
@@ -128,25 +128,25 @@ namespace KiraNet.AspectFlare.DynamicProxy
             }
         }
 
-        public static IDictionary<int, InterceptorWrapper> GetInterceptorWrapperDictionary(this Type type, Type interfaceType = null)
-        {
-            Dictionary<int, InterceptorWrapper> wrappers = new Dictionary<int, InterceptorWrapper>();
-            IEnumerable<MethodInfo> methods;
-            if (interfaceType != null && interfaceType.IsInterface)
-            {
-                methods = GetAsInterfaceInterceptMethods(interfaceType);
-            }
-            else
-            {
-                methods = GetAsClassInterceptMethods(type);
-            }
+        //public static IDictionary<int, InterceptorWrapper> GetInterceptorWrapperDictionary(this Type type, Type interfaceType = null)
+        //{
+        //    Dictionary<int, InterceptorWrapper> wrappers = new Dictionary<int, InterceptorWrapper>();
+        //    IEnumerable<MethodInfo> methods;
+        //    if (interfaceType != null && interfaceType.IsInterface)
+        //    {
+        //        methods = GetAsInterfaceInterceptMethods(interfaceType);
+        //    }
+        //    else
+        //    {
+        //        methods = GetAsClassInterceptMethods(type);
+        //    }
 
-            AddRangeWrapper(methods, wrappers);
+        //    AddRangeWrapper(methods, wrappers);
 
-            var constructors = GetAsConstructorInterceptMethods(type);
-            AddRangeWrapper(constructors, wrappers);
+        //    var constructors = GetAsConstructorInterceptMethods(type);
+        //    AddRangeWrapper(constructors, wrappers);
 
-            return wrappers;
-        }
+        //    return wrappers;
+        //}
     }
 }

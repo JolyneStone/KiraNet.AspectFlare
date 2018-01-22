@@ -139,7 +139,9 @@ namespace KiraNet.AspectFlare.Test
     {
         private InterceptorWrapperCollection _wrappers;
 
-        public Class(int x, params char[] chs) : base(x, chs)
+        public Class(params object[] s) : this(1) { }
+
+        public Class(int x, char[] chs) : base(x, chs)
         {
             Init();
             var wrapper = _wrappers.GetWrapper(10000);
@@ -158,52 +160,6 @@ namespace KiraNet.AspectFlare.Test
             try
             {
                 result = wrapper.CallingIntercepts(this, parameters);
-                // 调用基类方法
-
-                result = wrapper.CalledIntercepts(this, parameters, this);
-            }
-            catch (Exception ex)
-            {
-                result = wrapper.ExceptionIntercept(this, parameters, this, ex);
-            }
-        }
-
-
-        public Class(ref int x, out char y, ref InterceptResult r, out InterceptResult u, int z, int t, out Exception ex1, ref Exception ex2, Exception ex3, Exception ex4, Exception ex5, Exception ex6, Exception ex7) : base(ref x, out y, ref r, out u, z, t, out ex1, ref ex2, ex3, ex4, ex5, ex6, ex7)
-        {
-            Init();
-            var wrapper = _wrappers.GetWrapper(10000);
-            if (wrapper == null)
-            {
-                // 调用基类方法
-                ex1 = new Exception();
-            }
-
-            //var parameters = new object[] { x, y, r, u, z, t, ex1, ex2, ex3, ex4, ex5, ex6, ex7 };
-            var parameters = new object[13];
-            parameters[0] = x;
-            y = default(Char);
-            parameters[1] = y;
-            parameters[2] = r;
-            u = default(InterceptResult);
-            parameters[3] = u;
-            parameters[4] = z;
-            parameters[5] = t;
-            ex1 = default(Exception);
-            parameters[6] = ex1;
-            parameters[7] = ex2;
-            parameters[8] = ex3;
-            parameters[9] = ex4;
-            parameters[10] = ex5;
-            parameters[11] = ex6;
-            parameters[12] = ex7;
-
-            InterceptResult result;
-            try
-            {
-                result = wrapper.CallingIntercepts(this, parameters);
-
-                result = wrapper.CallingIntercepts(this, null);
                 // 调用基类方法
 
                 result = wrapper.CalledIntercepts(this, parameters, this);
@@ -245,7 +201,7 @@ namespace KiraNet.AspectFlare.Test
         private void Init()
         {
             var type = typeof(ClassBase);
-            _wrappers = new InterceptorWrapperCollection(type);
+            _wrappers = new InterceptorWrapperCollection(type, typeof(Class));
         }
 
         public override void Test()

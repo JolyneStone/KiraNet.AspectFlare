@@ -1,34 +1,35 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿//using System;
+//using System.Collections.Concurrent;
 
-namespace KiraNet.AspectFlare.DynamicProxy
-{
-    public class ProxyGeneratorCollection : IProxyGeneratorCollection
-    {
-        private static readonly ConcurrentDictionary<Type, ProxyDescriptor> _proxyContainer = new ConcurrentDictionary<Type, ProxyDescriptor>();
-        public IProxyGeneratorCollection AddProxy(ProxyDescriptor proxyDescriptor)
-        {
-            if (proxyDescriptor == null)
-            {
-                throw new ArgumentNullException(nameof(proxyDescriptor));
-            }
+//namespace KiraNet.AspectFlare.DynamicProxy
+//{
+//    public class ProxyGeneratorCollection : IProxyGeneratorCollection
+//    {
+//        private static readonly ConcurrentDictionary<Type, ProxyDescriptor> _proxyContainer = new ConcurrentDictionary<Type, ProxyDescriptor>();
 
-            if(proxyDescriptor.ServiceType == null || proxyDescriptor.ProxyType == null)
-            {
-                throw new InvalidOperationException("ServiceType or ProxyType are not allowed to be null");
-            }
+//        public IProxyGeneratorCollection AddProxy(ProxyDescriptor proxyDescriptor)
+//        {
+//            if (proxyDescriptor == null)
+//            {
+//                throw new ArgumentNullException(nameof(proxyDescriptor));
+//            }
 
-            if(!_proxyContainer.TryAdd(proxyDescriptor.ServiceType, proxyDescriptor))
-            {
-                throw new InvalidOperationException($"add this {proxyDescriptor.ServiceType.FullName} failed");
-            }
+//            if(proxyDescriptor.ClassType == null || proxyDescriptor.ProxyType == null)
+//            {
+//                throw new InvalidOperationException("ServiceType or ProxyType are not allowed to be null");
+//            }
 
-            return this;
-        }
+//            if(!_proxyContainer.TryAdd(proxyDescriptor.ClassType, proxyDescriptor))
+//            {
+//                throw new InvalidOperationException($"add this {proxyDescriptor.ClassType.FullName} failed");
+//            }
 
-        public IProxyGenerator Build()
-        {
-            throw new NotImplementedException();
-        }
-    }
-}
+//            return this;
+//        }
+
+//        public IProxyContainer Build()
+//        {
+//            throw new NotImplementedException();
+//        }
+//    }
+//}
