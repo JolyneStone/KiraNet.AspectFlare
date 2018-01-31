@@ -1,26 +1,38 @@
 ﻿using KiraNet.AspectFlare.DynamicProxy;
 using Microsoft.Extensions.DependencyInjection;
-using KiraNet.AspectFlare.Validator;
 
 namespace KiraNet.AspectFlare.DependencyInjection
 {
-    public static class ServiceCollectionExensions
+    public static class ServiceCollectionExtensions
     {
+
+        public static IServiceCollection UseDynamicProxyService(this IServiceCollection services, bool isValid)
+        {
+            return UseDynamicProxyService(services, new ProxyFlare().UseDefaultProviders(isValid));
+        }
+
         public static IServiceCollection UseDynamicProxyService(this IServiceCollection services)
+        {
+            return UseDynamicProxyService(services, new ProxyFlare().UseDefaultProviders());
+        }
+
+        public static IServiceCollection UseDynamicProxyService(this IServiceCollection services, IProxyFlare proxyFlare)
         {
             if (services == null)
             {
                 throw new System.ArgumentNullException(nameof(services));
             }
 
-            var proxyServices = new ProxyServiceCollection(services);
-
             services
-                .AddSingleton<ProxyServiceCollection>(proxyServices)
-                .AddSingleton<IProxyConfiguration, ProxyConfiguration>(_ => ProxyConfiguration.Configuration)
-                .AddScoped<IProxyValidator, ProxyValidator>()
-                .AddScoped<IProxyContainer, ProxyContainer>()
-                .AddScoped<IProxyTypeGenerator, ProxyTypeGenerator>();
+                .AddSingleton<IProxyFlare>(proxyFlare)
+                .AddSingleton<IProxyConfiguration>(proxyFlare.GetConfiguration())
+                .AddSingleton<IProxyCollection>(proxyFlare.GetCollection())
+                .AddSingleton<IProxyProvider>(proxyFlare.GetProvider())
+                .AddScoped<IProxyValidator>(_ => proxyFlare.GetValidator())
+                .AddScoped<IProxyTypeGenerator>(_ => proxyFlare.GetTypeGenerator());
+
+            var proxyServices = new ProxyServiceCollection(services, proxyFlare);
+            proxyServices.AddSingleton(proxyServices);
 
             return proxyServices;
         }

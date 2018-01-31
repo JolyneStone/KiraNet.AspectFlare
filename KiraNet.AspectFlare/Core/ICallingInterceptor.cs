@@ -1,6 +1,6 @@
 ﻿namespace KiraNet.AspectFlare
 {
-    public interface ICallingInterceptor
+    public interface ICallingInterceptor: IInterceptor
     {
         void Calling(CallingInterceptContext callingInterceptorContext);
     }

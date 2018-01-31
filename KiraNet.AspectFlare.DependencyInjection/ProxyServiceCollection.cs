@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using KiraNet.AspectFlare.DynamicProxy;
-using KiraNet.AspectFlare.Validator;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace KiraNet.AspectFlare.DependencyInjection
@@ -10,13 +9,12 @@ namespace KiraNet.AspectFlare.DependencyInjection
     public class ProxyServiceCollection : IServiceCollection
     {
         private readonly IServiceCollection _services;
-        private readonly IProxyValidator _validator;
-        private readonly IProxyTypeGenerator _proxyTypeGenerator;
-        public ProxyServiceCollection(IServiceCollection services)
+        private readonly IProxyProvider _provider;
+
+        public ProxyServiceCollection(IServiceCollection services, IProxyFlare proxyFlare)
         {
             _services = services ?? throw new ArgumentNullException(nameof(services));
-            _validator = new ProxyValidator();
-            _proxyTypeGenerator = new ProxyTypeGenerator();
+            _provider = proxyFlare.GetProvider();
         }
 
         public ServiceDescriptor this[int index] { get => _services[index]; set => _services[index] = value; }
@@ -36,49 +34,42 @@ namespace KiraNet.AspectFlare.DependencyInjection
 
             Type classType = item.ImplementationType ??
                             item.ImplementationInstance?.GetType() ??
-                            //item.ImplementationFactory?.GetType().GetGenericArguments()[1] ??
+                            item.ImplementationFactory?.GetType().GetGenericArguments()[1] ??
                             null;
-            if (_validator.Validate(item.ServiceType, classType))
+            IExpressionConverter<IServiceProvider, object> expressionConvertr = new ServiceProviderExpressionConverter();
+            Type implementType;
+            if (item.ServiceType.IsInterface)
             {
-                IExpressionConverter<IServiceProvider, object> expressionConvertr = new ServiceProviderExpressionConverter();
-                Type implementType;
-                if (item.ServiceType.IsInterface)
-                {
-                    implementType = _proxyTypeGenerator.GenerateProxyByInterface(item.ServiceType, classType).ProxyType;
-                }
-                else
-                {
-                    implementType = _proxyTypeGenerator.GenerateProxyByClass(classType).ProxyType;
-                }
-
-                if(implementType == null)
-                {
-                    _services.Add(item);
-                    return;
-                }
-
-                if (item.ImplementationFactory == null)
-                {
-                    _services.Add(ServiceDescriptor.Describe(
-                                    item.ServiceType,
-                                    implementType,
-                                    item.Lifetime));
-                }
-                else if (expressionConvertr.TryConvert(service =>
-                                    item.ImplementationFactory(service),
-                                    item.ImplementationType,
-                                    implementType,
-                                    out var convertLambdaExpression))
-                {
-                    _services.Add(ServiceDescriptor.Describe(
-                                    item.ServiceType,
-                                    convertLambdaExpression.Compile(),
-                                    item.Lifetime));
-                }
+                implementType = _provider.GetProxyType(item.ServiceType, classType);
             }
             else
             {
+                implementType = _provider.GetProxyType(classType);
+            }
+
+            if (implementType == null)
+            {
                 _services.Add(item);
+                return;
+            }
+
+            if (item.ImplementationFactory == null)
+            {
+                _services.Add(ServiceDescriptor.Describe(
+                                item.ServiceType,
+                                implementType,
+                                item.Lifetime));
+            }
+            else if (expressionConvertr.TryConvert(service =>
+                                item.ImplementationFactory(service),
+                                item.ImplementationType,
+                                implementType,
+                                out var convertLambdaExpression))
+            {
+                _services.Add(ServiceDescriptor.Describe(
+                                item.ServiceType,
+                                convertLambdaExpression.Compile(),
+                                item.Lifetime));
             }
         }
 

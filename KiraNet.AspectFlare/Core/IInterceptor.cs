@@ -1,6 +1,7 @@
 ﻿namespace KiraNet.AspectFlare
 {
-    //public interface IInterceptor: ICallingInterceptor, ICalledInterceptor
-    //{
-    //}
+    public interface IInterceptor
+    {
+        int Order { get; set; }
+    }
 }

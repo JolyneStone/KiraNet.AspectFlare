@@ -5,8 +5,8 @@ namespace KiraNet.AspectFlare.DynamicProxy
 {
     public class InterceptorWrapper
     {
-        public List<ICallingInterceptor> CallingInterceptors { get; set; }
-        public List<ICalledInterceptor> CalledInterceptors { get; set; }
+        public IList<ICallingInterceptor> CallingInterceptors { get; set; }
+        public IList<ICalledInterceptor> CalledInterceptors { get; set; }
         public IExceptionInterceptor ExceptionInterceptor { get; set; }
 
         public InterceptResult CallingIntercepts(object owner, object[] parameters)

@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Reflection.Emit;
+using KiraNet.AspectFlare.Utilities;
 
 namespace KiraNet.AspectFlare.DynamicProxy
 {
@@ -16,7 +16,8 @@ namespace KiraNet.AspectFlare.DynamicProxy
         {
             get
             {
-                if(_defineTypeOperator==null)                                             {
+                if (_defineTypeOperator == null)
+                {
                     _defineTypeOperator = new DefineTypeOperator();
                 }
 
@@ -41,7 +42,7 @@ namespace KiraNet.AspectFlare.DynamicProxy
         {
             get
             {
-                if(_implementConstructorsOperator == null)
+                if (_implementConstructorsOperator == null)
                 {
                     _implementConstructorsOperator = new ImplementConstructorsOperator();
                 }
@@ -54,7 +55,7 @@ namespace KiraNet.AspectFlare.DynamicProxy
         {
             get
             {
-                if(_implementMethodsOperator == null)
+                if (_implementMethodsOperator == null)
                 {
                     _implementMethodsOperator = new ImplementMethodOperator();
                 }
@@ -63,13 +64,17 @@ namespace KiraNet.AspectFlare.DynamicProxy
             }
         }
 
-        public ProxyTypeGenerator()
+        public ProxyTypeGenerator(IProxyConfiguration configuration)
         {
-            _moduleBuilder = ProxyConfiguration.Configuration.ProxyModuleBuilder;
-            _defineTypeOperator = new DefineTypeOperator();
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
+            _moduleBuilder = configuration.ProxyModuleBuilder;
         }
 
-        public ProxyDescriptor GenerateProxyByClass(Type classType)
+        public Type GenerateProxyByClass(Type classType)
         {
             if (classType == null)
             {
@@ -79,7 +84,7 @@ namespace KiraNet.AspectFlare.DynamicProxy
             return GenerateProxyType(null, classType);
         }
 
-        public ProxyDescriptor GenerateProxyByInterface(Type interfaceType, Type classType)
+        public Type GenerateProxyByInterface(Type interfaceType, Type classType)
         {
             if (interfaceType == null)
             {
@@ -94,7 +99,7 @@ namespace KiraNet.AspectFlare.DynamicProxy
             return GenerateProxyType(interfaceType, classType);
         }
 
-        private ProxyDescriptor GenerateProxyType(Type interfaceType, Type classType)
+        private Type GenerateProxyType(Type interfaceType, Type classType)
         {
             var context = new GeneratorTypeContext
             {
@@ -111,17 +116,7 @@ namespace KiraNet.AspectFlare.DynamicProxy
 
             var proxyType = context.TypeBuilder.CreateTypeInfo();
             HandleCollection.AddHandles(proxyType.MetadataToken, context.MethodHandles);
-            return new ProxyDescriptor
-            {
-                InterfaceType = interfaceType,
-                ClassType = classType,
-                ProxyType = proxyType,
-            };
-        }
-
-        private static string GetTypeName(Type classType, int token)
-        {
-            return $"{classType.Name}_AspectFlare_DynamicProxy_{token}";
+            return proxyType;
         }
     }
 }

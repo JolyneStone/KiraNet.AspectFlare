@@ -32,7 +32,8 @@ namespace KiraNet.AspectFlare.DependencyInjection
                 rawType == implementType ||
                 !rawType.IsAssignableFrom(implementType))
             {
-                throw new ArgumentException($"the ReturnType of lambda expression should not be void and is the base class of the {implementType} class or one of its implemented interfaces");
+                throw new ArgumentException($"the ReturnType of lambda expression should not be void and is the base class of" +
+                    $" the {implementType} class or one of its implemented interfaces");
             }
 
             var convertVisitor = new ConverterVisitor(rawType, implementType);

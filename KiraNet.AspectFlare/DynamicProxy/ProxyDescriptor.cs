@@ -2,7 +2,7 @@
 
 namespace KiraNet.AspectFlare.DynamicProxy
 {
-    public class ProxyDescriptor
+    public sealed class ProxyDescriptor
     {
         public Type InterfaceType { get; set; }
         public Type ClassType { get; set; }
