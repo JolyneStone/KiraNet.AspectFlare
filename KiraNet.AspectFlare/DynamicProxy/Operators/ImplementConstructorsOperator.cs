@@ -103,7 +103,7 @@ namespace KiraNet.AspectFlare.DynamicProxy
 
                 ctorGenerator.Emit(OpCodes.Ldarg_0);
 
-                if (context.ClassType.IsValueType && constructor == null)
+                if (constructor == null && context.ClassType.IsValueType)
                 {
                     ctorGenerator.DeclareLocal(context.ClassType);
                     ctorGenerator.Emit(OpCodes.Ldloca_S, 0);

@@ -23,10 +23,7 @@ namespace KiraNet.AspectFlare.DynamicProxy
                     return (T)result.Result;
                 }
 
-                call();
-
                 returnValue = call();
-
                 result = _wrapper.CalledIntercepts(owner, parameters, returnValue);
                 if (result.HasResult)
                 {

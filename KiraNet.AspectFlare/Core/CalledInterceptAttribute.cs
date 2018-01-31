@@ -15,6 +15,7 @@ namespace KiraNet.AspectFlare
         Inherited = true)]
     public abstract class CalledInterceptAttribute : Attribute, ICalledInterceptor
     {
+        public int Order { get; set; }
         public virtual void Called(CalledInterceptContext calledInterceptorContext)
         {
         }

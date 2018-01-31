@@ -36,6 +36,7 @@ namespace KiraNet.AspectFlare.DependencyInjection
                             item.ImplementationInstance?.GetType() ??
                             item.ImplementationFactory?.GetType().GetGenericArguments()[1] ??
                             null;
+
             IExpressionConverter<IServiceProvider, object> expressionConvertr = new ServiceProviderExpressionConverter();
             Type implementType;
             if (item.ServiceType.IsInterface)

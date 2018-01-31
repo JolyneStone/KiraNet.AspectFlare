@@ -29,22 +29,22 @@ namespace KiraNet.AspectFlare
             _exception = null;
         }
 
-        public void Add(ICallingInterceptor callingInterceptor) => _callings.Add(callingInterceptor);
+        public void AddCalling(ICallingInterceptor callingInterceptor) => _callings.Add(callingInterceptor);
 
-        public void Add(ICalledInterceptor calledInterceptor) => _calleds.Add(calledInterceptor);
+        public void AddCalled(ICalledInterceptor calledInterceptor) => _calleds.Add(calledInterceptor);
 
-        public void Add(IExceptionInterceptor exceptionInterceptor) => _exception = exceptionInterceptor;
+        public void AddException(IExceptionInterceptor exceptionInterceptor) => _exception = exceptionInterceptor;
 
         public void AddRange(IEnumerable<ICallingInterceptor> callings) => _callings.AddRange(callings);
 
         public void AddRange(IEnumerable<ICalledInterceptor> calleds) => _calleds.AddRange(calleds);
 
-        public IList<ICallingInterceptor> GetCallingInterceptors()
+        public IEnumerable<ICallingInterceptor> GetCallingInterceptors()
         {
             return _callings;
         }
 
-        public IList<ICalledInterceptor> GetCalledInterceptors()
+        public IEnumerable<ICalledInterceptor> GetCalledInterceptors()
         {
             return _calleds;
         }

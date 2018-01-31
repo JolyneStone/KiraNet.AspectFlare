@@ -360,7 +360,8 @@ namespace KiraNet.AspectFlare.DynamicProxy
 
                 for (var i = 1; i <= parameters.Length; i++)
                 {
-                    if (parameters[i - 1].IsOut)
+                    var parameter = parameters[i - 1];
+                    if (parameter.IsOut || parameter.IsRef)
                     {
                         var field = context.DisplayFields[i];
                         generator.Emit(OpCodes.Ldarg_S, i);
@@ -401,7 +402,7 @@ namespace KiraNet.AspectFlare.DynamicProxy
 
         private static void GenerateCallerMethod(GeneratorContext context)
         {
-            if (context.InterfaceMethod != null && context.Parameters.Length != 0)
+            if (context.Parameters.Length != 0)
             {
                 return;
             }
@@ -431,16 +432,17 @@ namespace KiraNet.AspectFlare.DynamicProxy
 
             var generator = method.GetILGenerator();
             generator.Emit(OpCodes.Ldarg_0);
+
+            if (context.Parameters.Length > 0)
+            {
+                for (var i = 1; i <= context.Parameters.Length; i++)
+                {
+                    generator.Emit(OpCodes.Ldarg_S, i);
+                }
+            }
+
             if (context.InterfaceMethod == null)
             {
-                if (context.Parameters.Length > 0)
-                {
-                    for (var i = 1; i <= context.Parameters.Length; i++)
-                    {
-                        generator.Emit(OpCodes.Ldarg_S, i);
-                    }
-                }
-
                 if (context.CallerType == CallerType.Ctor)
                 {
                     generator.Emit(OpCodes.Call, context.Constructor);
@@ -553,13 +555,10 @@ namespace KiraNet.AspectFlare.DynamicProxy
             var hasInterface = context.Interface != null;
 
             generator.Emit(OpCodes.Ldarg_0);
+            generator.Emit(OpCodes.Ldfld, fields[0]);
             if (hasInterface)
             {
                 generator.Emit(OpCodes.Ldfld, context.Interface);
-            }
-            else
-            {
-                generator.Emit(OpCodes.Ldfld, fields[0]);
             }
 
             ParamInfo parameter;
@@ -585,6 +584,7 @@ namespace KiraNet.AspectFlare.DynamicProxy
             {
                 generator.Emit(OpCodes.Call, context.CallerMethod);
             }
+
             generator.Emit(OpCodes.Ret);
             context.DisplayMethod = method;
         }

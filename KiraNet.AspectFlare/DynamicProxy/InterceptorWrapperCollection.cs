@@ -50,8 +50,8 @@ namespace KiraNet.AspectFlare.DynamicProxy
             var globalInterceptors = GlobalInterceptorCollection.GlobalInterceptors;
             var globalWrapper = new InterceptorWrapper
             {
-                CallingInterceptors = globalInterceptors.GetCallingInterceptors(),
-                CalledInterceptors = globalInterceptors.GetCalledInterceptors(),
+                CallingInterceptors = globalInterceptors.GetCallingInterceptors().OrderByDescending(x=>x.Order).ToList(),
+                CalledInterceptors = globalInterceptors.GetCalledInterceptors().OrderByDescending(x => x.Order).ToList(),
                 ExceptionInterceptor = globalInterceptors.GetExceptionInterceptor()
             };
 
@@ -128,14 +128,14 @@ namespace KiraNet.AspectFlare.DynamicProxy
                         wrapper.CallingInterceptors = new List<ICallingInterceptor>();
                     }
 
-                    wrapper.CallingInterceptors.Concat(value.CallingInterceptors);
+                    wrapper.CallingInterceptors.AddRange(value.CallingInterceptors);
 
                     if (wrapper.CalledInterceptors == null)
                     {
                         wrapper.CalledInterceptors = new List<ICalledInterceptor>();
                     }
 
-                    wrapper.CalledInterceptors.Concat(value.CalledInterceptors);
+                    wrapper.CalledInterceptors.AddRange(value.CalledInterceptors);
 
                     if (wrapper.ExceptionInterceptor == null)
                     {

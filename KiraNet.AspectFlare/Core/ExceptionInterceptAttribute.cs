@@ -15,6 +15,7 @@ namespace KiraNet.AspectFlare
      Inherited = true)]
     public abstract class ExceptionInterceptAttribute : Attribute, IExceptionInterceptor
     {
+        public int Order { get; set; }
         public virtual void Exception(ExceptionInterceptContext exceptionInterceptorContext)
         {
         }

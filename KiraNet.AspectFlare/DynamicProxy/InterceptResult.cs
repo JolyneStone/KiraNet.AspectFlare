@@ -1,6 +1,6 @@
 ﻿namespace KiraNet.AspectFlare.DynamicProxy
 {
-    public struct InterceptResult
+    public class InterceptResult
     {
         public bool HasResult;
         public object Result;
