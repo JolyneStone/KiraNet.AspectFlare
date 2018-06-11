@@ -33,7 +33,7 @@ namespace KiraNet.AspectFlare
                                         BindingFlags.Public |
                                         BindingFlags.NonPublic
                                     ).Where(
-                                    x=>
+                                    x =>
                                         x.IsPublic ||
                                         x.IsFamily ||
                                         !(x.IsAssembly || x.IsFamilyAndAssembly || x.IsFamilyOrAssembly)
@@ -105,17 +105,43 @@ namespace KiraNet.AspectFlare
                 throw new ArgumentNullException(nameof(classType));
             }
 
+            bool hasClassIntercept = classType.HasInterceptAttribute();
+            bool hasInterfaceIntercept = interfaceType.HasInterceptAttribute();
+            var interfaceMethods = interfaceType.GetMethods(
+                 BindingFlags.Public |
+                 BindingFlags.Instance |
+                 BindingFlags.DeclaredOnly
+             );
+
+            foreach(var interfaceMethod in interfaceMethods)
+            {
+                if (interfaceMethod.IsDefined(typeof(NonInterceptAttribute)))
+                {
+                    continue;
+                }
+
+                if (GlobalInterceptorCollection.GlobalInterceptors.Count > 0)
+                {
+                    return true;
+                }
+
+                if (!interfaceMethod.HasDefineInterceptAttribute() && !hasInterfaceIntercept)
+                {
+                    continue;
+                }
+
+                return true;
+            }
+
             var impNames = interfaceType.GetMethods(
                  BindingFlags.Public |
                  BindingFlags.Instance |
                  BindingFlags.DeclaredOnly
              )
-             .Select(x=>x.Name);
+             .Select(x => x.Name);
 
             var impImpNames = impNames.Select(x => x); // 隐式接口实现方法名称
             var expImpNames = impNames.Select(x => interfaceType.FullName + "." + x); // 显示接口实现方法名称
-            bool hasClassIntercept = classType.HasInterceptAttribute();
-            bool hasInterfaceIntercept = interfaceType.HasInterceptAttribute();
             foreach (var proxyMethod in classType.GetMethods(
                             BindingFlags.Instance |
                             BindingFlags.Public |

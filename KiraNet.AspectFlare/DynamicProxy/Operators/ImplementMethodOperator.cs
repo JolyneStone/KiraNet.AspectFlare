@@ -30,12 +30,18 @@ namespace KiraNet.AspectFlare.DynamicProxy
 
             var impImpNames = impNames.Select(x => x.Name); // 隐式接口实现方法名称
             var expImpNames = impNames.Select(x => interfaceType.FullName + "." + x.Name); // 显示接口实现方法名称
-            
-       
+
+
             var classType = context.ClassType;
             var typeBuilder = context.TypeBuilder;
             bool hasClassIntercept = classType.HasInterceptAttribute();
             bool hasInterfaceIntercept = interfaceType.HasInterceptAttribute();
+            var interfaceMethods = interfaceType.GetMethods(
+                 BindingFlags.Public |
+                 BindingFlags.Instance |
+                 BindingFlags.DeclaredOnly
+             );
+
             foreach (var proxyMethod in classType.GetMethods(
                             BindingFlags.Instance |
                             BindingFlags.Public |
@@ -44,20 +50,21 @@ namespace KiraNet.AspectFlare.DynamicProxy
                          x => x.IsVirtual
                 ))
             {
-                if (proxyMethod.IsDefined(typeof(NonInterceptAttribute)))
-                {
-                    continue;
-                }
-
-                if (!proxyMethod.HasDefineInterceptAttribute() && !hasClassIntercept && !hasInterfaceIntercept)
-                {
-                    continue;
-                }
+                //if (proxyMethod.IsDefined(typeof(NonInterceptAttribute)))
+                //{
+                //    continue;
+                //}
 
                 if (!impImpNames.Contains(proxyMethod.Name) && !expImpNames.Contains(proxyMethod.Name))
                 {
                     continue;
                 }
+
+                //if (!proxyMethod.HasDefineInterceptAttribute() && !hasClassIntercept && !hasInterfaceIntercept)
+                //{
+                //    continue;
+                //}
+
 
                 context.MethodHandles.Add(proxyMethod.MethodHandle);
 

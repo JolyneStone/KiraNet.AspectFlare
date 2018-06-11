@@ -6,5 +6,10 @@
         {
             return new ProxyTypeGenerator(configuration);
         }
+
+        public IProxyTypeGenerator BuilderTypeGenerator()
+        {
+            return new ProxyTypeGenerator(new ProxyConfigurationFactory().BuildConfiguration());
+        }
     }
 }

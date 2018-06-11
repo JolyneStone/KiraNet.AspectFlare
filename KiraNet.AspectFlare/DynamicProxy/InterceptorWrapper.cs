@@ -118,11 +118,11 @@ namespace KiraNet.AspectFlare.DynamicProxy
                 Parameters = parameters,
                 ReturnValue = returnValue,
                 Exception = exception,
-                HasResult = false
+                HasHandled = false
             };
 
             ExceptionInterceptor.Exception(context);
-            if (context.HasResult)
+            if (context.HasHandled)
             {
                 return new InterceptResult
                 {
