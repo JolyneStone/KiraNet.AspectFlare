@@ -2,6 +2,8 @@
 
 KiraNet.AspectFlare是一个轻量级的AOP解决方案，使用Emit技术进行动态代理，可轻松的集成依赖注入。目前还只支持Microsoft.Extensions.DependencyInjection。
 
+![找不到图片](https://github.com/zzq424/KiraNet.AspectFlare/blob/master/img/aspectflare.jpg)
+
 ### 拦截器
 ICallingInterceptor：在方法调用前进行拦截
 
