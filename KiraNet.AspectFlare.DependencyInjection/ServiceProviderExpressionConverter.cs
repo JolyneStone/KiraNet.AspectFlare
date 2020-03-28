@@ -17,7 +17,6 @@ namespace KiraNet.AspectFlare.DependencyInjection
                 throw new ArgumentNullException(nameof(rawType));
             }
 
-            convertLambdaExpression = null;
             if (lambdaExpression == null)
             {
                 throw new ArgumentNullException(nameof(lambdaExpression));
