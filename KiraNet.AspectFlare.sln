@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2026
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29920.165
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KiraNet.AspectFlare", "KiraNet.AspectFlare\KiraNet.AspectFlare.csproj", "{4DDA5F49-FE2B-416F-89C4-B6328F60BB84}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Simples", "Simples\Simples.csproj", "{96B43889-EDEE-47FE-8D6C-13857EC11DDE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KiraNet.AspectFlare.DependencyInjection", "KiraNet.AspectFlare.DependencyInjection\KiraNet.AspectFlare.DependencyInjection.csproj", "{6F0452BF-89A0-4D76-BDD1-71C52DA2C911}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KiraNet.AspectFlare", "KiraNet.AspectFlare\KiraNet.AspectFlare.csproj", "{6C309950-F0E9-4276-A042-3D910B531E6D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simples", "Simples\Simples.csproj", "{96B43889-EDEE-47FE-8D6C-13857EC11DDE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KiraNet.AspectFlare.DependencyInjection", "KiraNet.AspectFlare.DependencyInjection\KiraNet.AspectFlare.DependencyInjection.csproj", "{FB02F1BC-0666-4C25-8F65-855CC7314403}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,18 +15,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{4DDA5F49-FE2B-416F-89C4-B6328F60BB84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4DDA5F49-FE2B-416F-89C4-B6328F60BB84}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4DDA5F49-FE2B-416F-89C4-B6328F60BB84}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4DDA5F49-FE2B-416F-89C4-B6328F60BB84}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6F0452BF-89A0-4D76-BDD1-71C52DA2C911}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6F0452BF-89A0-4D76-BDD1-71C52DA2C911}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6F0452BF-89A0-4D76-BDD1-71C52DA2C911}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6F0452BF-89A0-4D76-BDD1-71C52DA2C911}.Release|Any CPU.Build.0 = Release|Any CPU
 		{96B43889-EDEE-47FE-8D6C-13857EC11DDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{96B43889-EDEE-47FE-8D6C-13857EC11DDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{96B43889-EDEE-47FE-8D6C-13857EC11DDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{96B43889-EDEE-47FE-8D6C-13857EC11DDE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C309950-F0E9-4276-A042-3D910B531E6D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C309950-F0E9-4276-A042-3D910B531E6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C309950-F0E9-4276-A042-3D910B531E6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C309950-F0E9-4276-A042-3D910B531E6D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB02F1BC-0666-4C25-8F65-855CC7314403}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB02F1BC-0666-4C25-8F65-855CC7314403}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB02F1BC-0666-4C25-8F65-855CC7314403}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB02F1BC-0666-4C25-8F65-855CC7314403}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
