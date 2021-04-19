@@ -7,11 +7,6 @@ namespace KiraNet.AspectFlare
 {
     public class ProxyValidator : IProxyValidator
     {
-        private static readonly Type NonIntercept = typeof(NonInterceptAttribute);
-        private static readonly Type CallingIntercept = typeof(CallingInterceptAttribute);
-        private static readonly Type CalledIntercept = typeof(CalledInterceptAttribute);
-        private static readonly Type ExceptionIntercept = typeof(ExceptionInterceptAttribute);
-
         public bool Validate(Type classType)
         {
             if (classType == null)
